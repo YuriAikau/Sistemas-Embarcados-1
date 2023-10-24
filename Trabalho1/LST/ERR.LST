@@ -1,0 +1,107 @@
+     1                                  global invalid_player, double_play, clear_header
+     2                                  extern cursor, caracter
+     3                                  extern proximo_jogador
+     4                                  extern cor, branco_intenso, amarelo
+     5                                  
+     6                                  segment code
+     7                                  ..start:
+     8                                  
+     9                                  invalid_player:
+    10 00000000 9C                          pushf
+    11 00000001 50                          push 		ax
+    12 00000002 53                          push 		bx
+    13 00000003 51                          push		cx
+    14 00000004 52                          push		dx
+    15 00000005 56                          push		si
+    16 00000006 57                          push		di
+    17 00000007 55                          push		bp
+    18                                  
+    19 00000008 B91100                      mov cx, 17 ; número de caracteres na mensagem de erro
+    20 0000000B 31DB                        xor bx,bx
+    21 0000000D B600                        mov dh,0
+    22 0000000F B217                        mov dl,23
+    23 00000011 C706[0000][0000]            mov word[cor], amarelo
+    24                                  
+    25                                  err_invalid_player:
+    26 00000017 E8(0000)                    call	cursor
+    27 0000001A 8A87[1E00]                  mov     al,[bx+jogador_invalido]
+    28 0000001E E8(0000)                    call	caracter
+    29 00000021 43                          inc     bx			;proximo caracter
+    30 00000022 FEC2                        inc		dl			;avanca a coluna
+    31 00000024 E2F1                        loop    err_invalid_player
+    32                                  
+    33 00000026 5F                          pop		di
+    34 00000027 5E                          pop		si
+    35 00000028 5A                          pop		dx
+    36 00000029 59                          pop		cx
+    37 0000002A 5B                          pop		bx
+    38 0000002B 58                          pop		ax
+    39 0000002C 9D                          popf
+    40 0000002D 5D                          pop		bp
+    41 0000002E C3                          ret
+    42                                  
+    43                                  double_play:
+    44 0000002F E82700                      call clear_header
+    45 00000032 B91E00                      mov cx, 30 ; número de caracteres na mensagem de erro
+    46 00000035 31DB                        xor bx,bx
+    47 00000037 B600                        mov dh,0
+    48 00000039 B219                        mov dl,25
+    49 0000003B C706[0000][0000]            mov word[cor], branco_intenso
+    50                                  
+    51                                  err_dup_play:
+    52 00000041 E8(0000)                    call	cursor
+    53 00000044 8A87[0000]                  mov     al,[bx+jogada_dupla]
+    54 00000048 E8(0000)                    call	caracter
+    55 0000004B 43                          inc     bx			;proximo caracter
+    56 0000004C FEC2                        inc		dl			;avanca a coluna
+    57 0000004E E2F1                        loop    err_dup_play
+    58                                  
+    59 00000050 E8(0000)                    call	cursor
+    60 00000053 A0[0000]                    mov     al,[proximo_jogador]
+    61 00000056 E8(0000)                    call	caracter
+    62                                  
+    63                                  ; limpa o cabeçalho antes de escrever nele
+    64                                  clear_header:
+    65 00000059 9C                          pushf
+    66 0000005A 50                          push 		ax
+    67 0000005B 53                          push 		bx
+    68 0000005C 51                          push		cx
+    69 0000005D 52                          push		dx
+    70 0000005E 56                          push		si
+    71 0000005F 57                          push		di
+    72 00000060 55                          push        bp
+    73 00000061 B95000                      mov cx, 80 ; número de caracteres na mensagem de erro
+    74 00000064 31DB                        xor bx,bx
+    75 00000066 B600                        mov dh,0
+    76 00000068 B200                        mov dl,0
+    77 0000006A C706[0000][0000]            mov word[cor], branco_intenso
+    78                                  
+    79                                  clearer:
+    80 00000070 E8(0000)                    call	cursor
+    81 00000073 B020                        mov     al,' '
+    82 00000075 E8(0000)                    call	caracter
+    83 00000078 FEC2                        inc		dl			;avanca a coluna
+    84 0000007A E2F4                        loop    clearer
+    85                                  
+    86 0000007C 5D                          pop		bp
+    87 0000007D 5F                          pop		di
+    88 0000007E 5E                          pop		si
+    89 0000007F 5A                          pop		dx
+    90 00000080 59                          pop		cx
+    91 00000081 5B                          pop		bx
+    92 00000082 58                          pop		ax
+    93 00000083 9D                          popf
+    94 00000084 C3                          ret
+    95                                  
+    96                                  segment data
+    97                                  ; mensagens de status
+    98 00000000 566F6365206A61206A-         jogada_dupla        db      'Voce ja jogou, vez do jogador '
+    99 00000009 6F676F752C2076657A-
+   100 00000012 20646F206A6F676164-
+   101 0000001B 6F7220             
+   102 0000001E 4A6F6761646F722069-         jogador_invalido    db      'Jogador invalido!'
+   103 00000027 6E76616C69646F21   
+   104                                  
+   105                                  segment stack stack
+   106 00000000 <res 00000200>              resb 512
+   107                                  stacktop:

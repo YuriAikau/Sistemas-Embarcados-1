@@ -1,6 +1,8 @@
 extern circle, line, cursor, caracter
+extern invalid_player, double_play, clear_header
 extern cor, azul, vermelho, branco_intenso, amarelo
 global draw_table, draw_position
+global proximo_jogador
 segment code
 ..start:
 
@@ -86,25 +88,13 @@ draw_position:
     call clear_header
     mov ax,[bp+8] ;caractere ASCII correspondente ao símbolo a ser desenhado
     cmp ax,[jogador_anterior]
-    je double_play
+    je double_play_jmp
     cmp ax,'X'
     je draw_ecks1
     cmp ax,'O'
     je draw_circle1
 
-    mov cx, 17 ; número de caracteres na mensagem de erro
-    xor bx,bx
-    mov dh,0
-    mov dl,23
-    mov word[cor], amarelo
-
-err_invalid_player:
-    call	cursor
-    mov     al,[bx+jogador_invalido]
-    call	caracter
-    inc     bx			;proximo caracter
-    inc		dl			;avanca a coluna
-    loop    err_invalid_player
+    call invalid_player
 
     jmp draw_position_end
 
@@ -113,60 +103,11 @@ draw_ecks1:
 
 draw_circle1:
     jmp draw_circle
-double_play:
-    call clear_header
-    mov cx, 30 ; número de caracteres na mensagem de erro
-    xor bx,bx
-    mov dh,0
-    mov dl,25
-    mov word[cor], branco_intenso
 
-err_dup_play:
-    call	cursor
-    mov     al,[bx+jogada_dupla]
-    call	caracter
-    inc     bx			;proximo caracter
-    inc		dl			;avanca a coluna
-    loop    err_dup_play
-
-    call	cursor
-    mov     al,[proximo_jogador]
-    call	caracter
+double_play_jmp:
+    call double_play
 
     jmp draw_position_end
-
-; limpa o cabeçalho antes de escrever nele
-clear_header:
-    pushf
-    push 		ax
-    push 		bx
-    push		cx
-    push		dx
-    push		si
-    push		di
-    push        bp
-    mov cx, 80 ; número de caracteres na mensagem de erro
-    xor bx,bx
-    mov dh,0
-    mov dl,0
-    mov word[cor], branco_intenso
-
-clearer:
-    call	cursor
-    mov     al,' '
-    call	caracter
-    inc		dl			;avanca a coluna
-    loop    clearer
-
-    pop		bp
-    pop		di
-    pop		si
-    pop		dx
-    pop		cx
-    pop		bx
-    pop		ax
-    popf
-    ret
 
 draw_circle:
     mov ax,[bp+6] ;posicao x da tabela (0-2)
@@ -283,9 +224,6 @@ segment data
     jogador_anterior    dw      ' '
     proximo_jogador     dw      ' '
 
-; mensagens de status
-    jogada_dupla        db      'Voce ja jogou, vez do jogador '
-    jogador_invalido    db      'Jogador invalido!'
 segment stack stack
     resb 128
 stacktop:
