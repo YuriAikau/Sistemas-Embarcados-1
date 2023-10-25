@@ -1,5 +1,5 @@
      1                                  extern circle, line, cursor, caracter
-     2                                  extern invalid_player, double_play, clear_header
+     2                                  extern invalid_player, double_play, invalid_position, clear_header
      3                                  extern cor, azul, vermelho, branco_intenso, amarelo
      4                                  global draw_table, draw_position
      5                                  global proximo_jogador
@@ -20,210 +20,288 @@
     20 00000008 C706[0000][0000]            mov		word[cor],branco_intenso
     21 0000000E B81400                      mov		ax,offset_tabela_x
     22 00000011 50                          push		ax
-    23 00000012 B8AA00                      mov		ax,170
+    23 00000012 B8E600                      mov		ax,offset_tabela_y+altura_y
     24 00000015 50                          push		ax
     25 00000016 B86C02                      mov		ax,fim_tabela_x
     26 00000019 50                          push		ax
-    27 0000001A B8AA00                      mov		ax,170
+    27 0000001A B8E600                      mov		ax,offset_tabela_y+altura_y
     28 0000001D 50                          push		ax
     29 0000001E E8(0000)                    call		line
     30                                  
     31 00000021 C706[0000][0000]            mov		word[cor],branco_intenso
     32 00000027 B81400                      mov		ax,offset_tabela_x
     33 0000002A 50                          push		ax
-    34 0000002B B83601                      mov		ax,310
+    34 0000002B B85401                      mov		ax,offset_tabela_y+2*altura_y
     35 0000002E 50                          push		ax
     36 0000002F B86C02                      mov		ax,fim_tabela_x
     37 00000032 50                          push		ax
-    38 00000033 B83601                      mov		ax,310
+    38 00000033 B85401                      mov		ax,offset_tabela_y+2*altura_y
     39 00000036 50                          push		ax
     40 00000037 E8(0000)                    call		line
     41                                  
     42 0000003A C706[0000][0000]            mov		word[cor],branco_intenso
-    43 00000040 B8DC00                      mov		ax,220
+    43 00000040 B8DC00                      mov		ax,offset_tabela_x+largura_x
     44 00000043 50                          push		ax
-    45 00000044 B81E00                      mov		ax,offset_tabela_y
+    45 00000044 B87800                      mov		ax,offset_tabela_y
     46 00000047 50                          push		ax
-    47 00000048 B8DC00                      mov		ax,220
+    47 00000048 B8DC00                      mov		ax,offset_tabela_x+largura_x
     48 0000004B 50                          push		ax
     49 0000004C B8C201                      mov		ax,fim_tabela_y
     50 0000004F 50                          push		ax
     51 00000050 E8(0000)                    call		line
     52                                  
     53 00000053 C706[0000][0000]            mov		word[cor],branco_intenso
-    54 00000059 B8A401                      mov		ax,420
+    54 00000059 B8A401                      mov		ax,offset_tabela_x+2*largura_x
     55 0000005C 50                          push		ax
-    56 0000005D B81E00                      mov		ax,offset_tabela_y
+    56 0000005D B87800                      mov		ax,offset_tabela_y
     57 00000060 50                          push		ax
-    58 00000061 B8A401                      mov		ax,420
+    58 00000061 B8A401                      mov		ax,offset_tabela_x+2*largura_x
     59 00000064 50                          push		ax
     60 00000065 B8C201                      mov		ax,fim_tabela_y
     61 00000068 50                          push		ax
     62 00000069 E8(0000)                    call		line
     63                                  
-    64 0000006C 5D                          pop		bp
-    65 0000006D 5F                          pop		di
-    66 0000006E 5E                          pop		si
-    67 0000006F 5A                          pop		dx
-    68 00000070 59                          pop		cx
-    69 00000071 5B                          pop		bx
-    70 00000072 58                          pop		ax
-    71 00000073 9D                          popf
-    72 00000074 C3                          ret
-    73                                  
-    74                                  ;_____________________________________________________________________________
-    75                                  ;   funcao desenha_posicao
-    76                                  ;   push symbol; push x; push y; call draw_position; (0<=x<=2) e (0<=y<=2)
-    77                                  draw_position:
-    78 00000075 55                          push bp
-    79 00000076 89E5                        mov bp,sp
-    80 00000078 9C                          pushf
-    81 00000079 50                          push 		ax
-    82 0000007A 53                          push 		bx
-    83 0000007B 51                          push		cx
-    84 0000007C 52                          push		dx
-    85 0000007D 56                          push		si
-    86 0000007E 57                          push		di
-    87                                  
-    88 0000007F E8(0000)                    call clear_header
-    89 00000082 8B4608                      mov ax,[bp+8] ;caractere ASCII correspondente ao símbolo a ser desenhado
-    90 00000085 3B06[0000]                  cmp ax,[jogador_anterior]
-    91 00000089 7416                        je double_play_jmp
-    92 0000008B 3D5800                      cmp ax,'X'
-    93 0000008E 740B                        je draw_ecks1
-    94 00000090 3D4F00                      cmp ax,'O'
-    95 00000093 7409                        je draw_circle1
-    96                                  
-    97 00000095 E8(0000)                    call invalid_player
-    98                                  
-    99 00000098 E9A900                      jmp draw_position_end
-   100                                  
-   101                                  draw_ecks1:
-   102 0000009B E93B00                      jmp draw_ecks
-   103                                  
-   104                                  draw_circle1:
-   105 0000009E E90600                      jmp draw_circle
-   106                                  
-   107                                  double_play_jmp:
-   108 000000A1 E8(0000)                    call double_play
-   109                                  
-   110 000000A4 E99D00                      jmp draw_position_end
-   111                                  
-   112                                  draw_circle:
-   113 000000A7 8B4606                      mov ax,[bp+6] ;posicao x da tabela (0-2)
-   114 000000AA B3C8                        mov bl,largura_x
-   115 000000AC F6E3                        mul bl
-   116 000000AE 057800                      add ax,offset_tabela_x+(largura_x/2)
-   117 000000B1 50                          push ax
-   118                                  
-   119 000000B2 8B4604                      mov ax,[bp+4] ;posicao y da tabela (0-2)
-   120 000000B5 B38C                        mov bl,altura_y
-   121 000000B7 F6E3                        mul bl
-   122 000000B9 056400                      add ax,offset_tabela_y+(altura_y/2)
-   123 000000BC 50                          push ax
-   124                                  
-   125 000000BD C706[0000][0000]            mov word[cor], azul
-   126 000000C3 B83200                      mov ax,(altura_y/2)-20
-   127 000000C6 50                          push ax
-   128                                  
-   129 000000C7 E8(0000)                    call circle
-   130                                  
-   131 000000CA B84F00                      mov ax,'O'
-   132 000000CD A3[0000]                    mov word[jogador_anterior],ax
-   133 000000D0 B85800                      mov ax,'X'
-   134 000000D3 A3[0200]                    mov word[proximo_jogador],ax
-   135                                  
-   136 000000D6 E96B00                      jmp draw_position_end
+    64 0000006C B91200                      mov cx, 18 ; número de caracteres na mensagem "Campo de comando: "
+    65 0000006F 31DB                        xor bx,bx
+    66 00000071 B619                        mov dh,25
+    67 00000073 B202                        mov dl,2
+    68 00000075 C706[0000][0000]            mov word[cor], branco_intenso
+    69                                  
+    70                                  draw_cmd:
+    71 0000007B E8(0000)                    call	cursor
+    72 0000007E 8A87[0700]                  mov     al,[bx+campo_cmd]
+    73 00000082 E8(0000)                    call	caracter
+    74 00000085 43                          inc     bx			;proximo caracter
+    75 00000086 FEC2                        inc		dl			;avanca a coluna
+    76 00000088 E2F1                        loop    draw_cmd
+    77                                  
+    78 0000008A B91400                      mov cx, 20 ; número de caracteres na mensagem "Campo de mensagens: "
+    79 0000008D 31DB                        xor bx,bx
+    80 0000008F B61B                        mov dh,27
+    81 00000091 B202                        mov dl,2
+    82 00000093 C706[0000][0000]            mov word[cor], branco_intenso
+    83                                  
+    84                                  draw_msg:
+    85 00000099 E8(0000)                    call	cursor
+    86 0000009C 8A87[1900]                  mov     al,[bx+campo_msg]
+    87 000000A0 E8(0000)                    call	caracter
+    88 000000A3 43                          inc     bx			;proximo caracter
+    89 000000A4 FEC2                        inc		dl			;avanca a coluna
+    90 000000A6 E2F1                        loop    draw_msg
+    91                                  
+    92 000000A8 5D                          pop		bp
+    93 000000A9 5F                          pop		di
+    94 000000AA 5E                          pop		si
+    95 000000AB 5A                          pop		dx
+    96 000000AC 59                          pop		cx
+    97 000000AD 5B                          pop		bx
+    98 000000AE 58                          pop		ax
+    99 000000AF 9D                          popf
+   100 000000B0 C3                          ret
+   101                                  
+   102                                  ;_____________________________________________________________________________
+   103                                  ;   funcao desenha_posicao
+   104                                  ;   push symbol; push x; push y; call draw_position; (0<=x<=2) e (0<=y<=2)
+   105                                  draw_position:
+   106 000000B1 55                          push bp
+   107 000000B2 89E5                        mov bp,sp
+   108 000000B4 9C                          pushf
+   109 000000B5 50                          push 		ax
+   110 000000B6 53                          push 		bx
+   111 000000B7 51                          push		cx
+   112 000000B8 52                          push		dx
+   113 000000B9 56                          push		si
+   114 000000BA 57                          push		di
+   115                                  
+   116 000000BB 8B4604                      mov ax,[bp+4] ;posicao c da tabela (0-2)
+   117 000000BE 3D0300                      cmp ax,3
+   118 000000C1 773A                        ja invalid_pos
+   119 000000C3 3D0100                      cmp ax,1
+   120 000000C6 7235                        jb invalid_pos
+   121                                  
+   122 000000C8 8B4606                      mov ax,[bp+6] ;posicao l da tabela (0-2)
+   123 000000CB 3D0300                      cmp ax,3
+   124 000000CE 772D                        ja invalid_pos
+   125 000000D0 3D0100                      cmp ax,1
+   126 000000D3 7228                        jb invalid_pos
+   127                                  
+   128 000000D5 E8(0000)                    call clear_header
+   129 000000D8 8B4608                      mov ax,[bp+8] ;caractere ASCII correspondente ao símbolo a ser desenhado
+   130 000000DB 3B06[0000]                  cmp ax,[jogador_anterior]
+   131 000000DF 7416                        je double_play_jmp
+   132                                  
+   133 000000E1 3D5800                      cmp ax,'X'
+   134 000000E4 740B                        je draw_ecks1
+   135 000000E6 3D4F00                      cmp ax,'O'
+   136 000000E9 7409                        je draw_circle1
    137                                  
-   138                                  draw_ecks:
-   139 000000D9 C706[0000][0000]            mov word[cor], vermelho
-   140                                  ; desenhando a primeira "barra" do X
-   141 000000DF 8B4606                      mov ax,[bp+6] ;posicao x da tabela (0-2)
-   142 000000E2 B3C8                        mov bl,largura_x
-   143 000000E4 F6E3                        mul bl
-   144 000000E6 052800                      add ax,2*offset_tabela_x
-   145 000000E9 50                          push ax ; posicao x1 da função line
-   146                                  
-   147 000000EA 8B4604                      mov ax,[bp+4] ;posicao y da tabela (0-2)
-   148 000000ED B38C                        mov bl,altura_y
-   149 000000EF F6E3                        mul bl
-   150 000000F1 053C00                      add ax,2*offset_tabela_y
-   151 000000F4 50                          push ax ; posicao y1 da função line
+   138 000000EB E8(0000)                    call invalid_player
+   139                                  
+   140 000000EE E9E000                      jmp draw_position_end
+   141                                  
+   142                                  draw_ecks1:
+   143 000000F1 E94A00                      jmp draw_ecks
+   144                                  
+   145                                  draw_circle1:
+   146 000000F4 E90C00                      jmp draw_circle
+   147                                  
+   148                                  double_play_jmp:
+   149 000000F7 E8(0000)                    call double_play
+   150                                  
+   151 000000FA E9D400                      jmp draw_position_end
    152                                  
-   153 000000F5 8B4606                      mov ax,[bp+6] ;posicao x da tabela (0-2)
-   154 000000F8 40                          inc ax ; pega o final do "quadradinho" da posição atual
-   155 000000F9 B3C8                        mov bl,largura_x
-   156 000000FB F6E3                        mul bl
-   157 000000FD 50                          push ax ; posicao x2 da função line
-   158                                  
-   159 000000FE 8B4604                      mov ax,[bp+4] ;posicao y da tabela (0-2)
-   160 00000101 40                          inc ax ; pega o final do "quadradinho" da posição atual
-   161 00000102 B38C                        mov bl,altura_y
-   162 00000104 F6E3                        mul bl
-   163 00000106 50                          push ax ; posicao y2 da função line
-   164                                  
-   165 00000107 E8(0000)                    call line
-   166                                  
-   167                                  ; desenhando a segunda "barra" do X
-   168 0000010A 8B4606                      mov ax,[bp+6] ;posicao x da tabela (0-2)
-   169 0000010D B3C8                        mov bl,largura_x
-   170 0000010F F6E3                        mul bl
-   171 00000111 052800                      add ax,2*offset_tabela_x
-   172 00000114 50                          push ax ; posicao x1 da função line
+   153                                  invalid_pos:
+   154 000000FD E8(0000)                    call invalid_position
+   155 00000100 E9CE00                      jmp draw_position_end
+   156                                  draw_circle:
+   157 00000103 8B4604                      mov ax,[bp+4] ;posicao c da tabela (0-2)
+   158 00000106 48                          dec ax
+   159 00000107 B3C8                        mov bl,largura_x
+   160 00000109 F6E3                        mul bl
+   161 0000010B 057800                      add ax,offset_tabela_x+(largura_x/2)
+   162 0000010E 50                          push ax
+   163                                  
+   164 0000010F 8B4606                      mov ax,[bp+6] ;posicao l da tabela (0-2)
+   165 00000112 48                          dec ax
+   166 00000113 B36E                        mov bl,altura_y
+   167 00000115 F6E3                        mul bl
+   168 00000117 055500                      add ax,margem_y+(altura_y/2)
+   169 0000011A 31DB                        xor bx,bx
+   170 0000011C BBDF01                      mov bx,479
+   171 0000011F 29C3                        sub bx,ax
+   172 00000121 53                          push bx
    173                                  
-   174 00000115 8B4604                      mov ax,[bp+4] ;posicao y da tabela (0-2)
-   175 00000118 40                          inc ax ; pega o canto superior esquerdo do "quadradinho"
-   176 00000119 B38C                        mov bl,altura_y
-   177 0000011B F6E3                        mul bl
-   178 0000011D 50                          push ax ; posicao y1 da função line
+   174 00000122 C706[0000][0000]            mov word[cor], azul
+   175 00000128 B82D00                      mov ax,(altura_y/2)-offset_quadrado_y
+   176 0000012B 50                          push ax
+   177                                  
+   178 0000012C E8(0000)                    call circle
    179                                  
-   180 0000011E 8B4606                      mov ax,[bp+6] ;posicao x da tabela (0-2)
-   181 00000121 40                          inc ax ; pega o final do "quadradinho" da posição atual
-   182 00000122 B3C8                        mov bl,largura_x
-   183 00000124 F6E3                        mul bl
-   184 00000126 50                          push ax ; posicao x2 da função line
-   185                                  
-   186 00000127 8B4604                      mov ax,[bp+4] ;posicao y da tabela (0-2)
-   187 0000012A B38C                        mov bl,altura_y
-   188 0000012C F6E3                        mul bl
-   189 0000012E 053C00                      add ax, 2*offset_tabela_y
-   190 00000131 50                          push ax ; posicao y2 da função line
-   191                                  
-   192 00000132 E8(0000)                    call line
-   193                                  
-   194 00000135 B85800                      mov ax,'X'
-   195 00000138 A3[0000]                    mov word[jogador_anterior],ax
-   196 0000013B B84F00                      mov ax,'O'
-   197 0000013E A3[0200]                    mov word[proximo_jogador],ax
-   198                                  
-   199 00000141 E90000                      jmp draw_position_end
-   200                                  
-   201                                  draw_position_end:
-   202 00000144 5F                          pop		di
-   203 00000145 5E                          pop		si
-   204 00000146 5A                          pop		dx
-   205 00000147 59                          pop		cx
-   206 00000148 5B                          pop		bx
-   207 00000149 58                          pop		ax
-   208 0000014A 9D                          popf
-   209 0000014B 5D                          pop		bp
-   210 0000014C C20600                      ret 6
-   211                                  
-   212                                  segment data
-   213                                  ;coordenadas do inicio (canto inferior esquerdo) e do fim (canto superior direito) da tabela do jogo da velha
-   214                                      offset_tabela_x     equ     20
-   215                                      offset_tabela_y     equ     30
-   216                                      fim_tabela_x        equ     620
-   217                                      fim_tabela_y        equ     450
-   218                                  
-   219                                  ; dimensoes de cada quadradinho do jogo da velha
-   220                                      largura_x           equ     200
-   221                                      altura_y            equ     140
-   222                                  
-   223                                  ; vez do jogador anterior
-   224 00000000 2000                        jogador_anterior    dw      ' '
-   225 00000002 2000                        proximo_jogador     dw      ' '
-   226                                  
-   227                                  segment stack stack
-   228 00000000 <res 00000080>              resb 128
-   229                                  stacktop:
+   180 0000012F B84F00                      mov ax,'O'
+   181 00000132 A3[0000]                    mov word[jogador_anterior],ax
+   182 00000135 B85800                      mov ax,'X'
+   183 00000138 A3[0200]                    mov word[proximo_jogador],ax
+   184                                  
+   185 0000013B E99300                      jmp draw_position_end
+   186                                  
+   187                                  draw_ecks:
+   188 0000013E C706[0000][0000]            mov word[cor], vermelho
+   189                                  ; desenhando a primeira "barra" do X
+   190 00000144 8B4604                      mov ax,[bp+4] ;posicao c da tabela (0-2)
+   191 00000147 48                          dec ax
+   192 00000148 B3C8                        mov bl,largura_x
+   193 0000014A F6E3                        mul bl
+   194 0000014C 051E00                      add ax,offset_tabela_x+offset_quadrado_x
+   195 0000014F 50                          push ax ; posicao x1 da função line
+   196                                  
+   197 00000150 8B4606                      mov ax,[bp+6] ;posicao l da tabela (0-2)
+   198 00000153 48                          dec ax
+   199 00000154 B36E                        mov bl,altura_y
+   200 00000156 F6E3                        mul bl
+   201 00000158 052800                      add ax,margem_y+offset_quadrado_y
+   202 0000015B 31DB                        xor bx,bx
+   203 0000015D BBDF01                      mov bx,479
+   204 00000160 29C3                        sub bx,ax
+   205 00000162 53                          push bx ; posicao y1 da função line
+   206                                  
+   207 00000163 8B4604                      mov ax,[bp+4] ;posicao c da tabela (0-2)
+   208 00000166 B3C8                        mov bl,largura_x
+   209 00000168 F6E3                        mul bl
+   210 0000016A 050A00                      add ax,offset_tabela_x-offset_quadrado_x
+   211 0000016D 50                          push ax ; posicao x2 da função line
+   212                                  
+   213 0000016E 8B4606                      mov ax,[bp+6] ;posicao l da tabela (0-2)
+   214 00000171 B36E                        mov bl,altura_y
+   215 00000173 F6E3                        mul bl
+   216 00000175 051400                      add ax,margem_y-offset_quadrado_y
+   217 00000178 31DB                        xor bx,bx
+   218 0000017A BBDF01                      mov bx,479
+   219 0000017D 29C3                        sub bx,ax
+   220 0000017F 53                          push bx ; posicao y2 da função line
+   221                                  
+   222 00000180 E8(0000)                    call line
+   223                                  
+   224                                  ; desenhando a segunda "barra" do X
+   225 00000183 8B4604                      mov ax,[bp+4] ;posicao c da tabela (0-2)
+   226 00000186 48                          dec ax
+   227 00000187 B3C8                        mov bl,largura_x
+   228 00000189 F6E3                        mul bl
+   229 0000018B 051E00                      add ax,offset_tabela_x+offset_quadrado_x
+   230 0000018E 50                          push ax ; posicao x1 da função line
+   231                                  
+   232 0000018F 8B4606                      mov ax,[bp+6] ;posicao l da tabela (0-2)
+   233 00000192 B36E                        mov bl,altura_y
+   234 00000194 F6E3                        mul bl
+   235 00000196 051400                      add ax,margem_y-offset_quadrado_y
+   236 00000199 31DB                        xor bx,bx
+   237 0000019B BBDF01                      mov bx,479
+   238 0000019E 29C3                        sub bx,ax
+   239 000001A0 53                          push bx ; posicao y1 da função line
+   240                                  
+   241 000001A1 8B4604                      mov ax,[bp+4] ;posicao c da tabela (0-2)
+   242 000001A4 B3C8                        mov bl,largura_x
+   243 000001A6 F6E3                        mul bl
+   244 000001A8 050A00                      add ax,offset_tabela_x-offset_quadrado_x
+   245 000001AB 50                          push ax ; posicao x2 da função line
+   246                                  
+   247 000001AC 8B4606                      mov ax,[bp+6] ;posicao l da tabela (0-2)
+   248 000001AF 48                          dec ax
+   249 000001B0 B36E                        mov bl,altura_y
+   250 000001B2 F6E3                        mul bl
+   251 000001B4 052800                      add ax, margem_y+offset_quadrado_y
+   252 000001B7 31DB                        xor bx,bx
+   253 000001B9 BBDF01                      mov bx,479
+   254 000001BC 29C3                        sub bx,ax
+   255 000001BE 53                          push bx ; posicao y2 da função line
+   256                                  
+   257 000001BF E8(0000)                    call line
+   258                                  
+   259 000001C2 B85800                      mov ax,'X'
+   260 000001C5 A3[0000]                    mov word[jogador_anterior],ax
+   261 000001C8 B84F00                      mov ax,'O'
+   262 000001CB A3[0200]                    mov word[proximo_jogador],ax
+   263                                  
+   264 000001CE E90000                      jmp draw_position_end
+   265                                  
+   266                                  draw_position_end:
+   267 000001D1 5F                          pop		di
+   268 000001D2 5E                          pop		si
+   269 000001D3 5A                          pop		dx
+   270 000001D4 59                          pop		cx
+   271 000001D5 5B                          pop		bx
+   272 000001D6 58                          pop		ax
+   273 000001D7 9D                          popf
+   274 000001D8 5D                          pop		bp
+   275 000001D9 C20600                      ret 6
+   276                                  
+   277                                  segment data
+   278                                  ;coordenadas do inicio (canto inferior esquerdo) e do fim (canto superior direito) da tabela do jogo da velha
+   279                                      offset_tabela_x     equ     20
+   280                                      offset_tabela_y     equ     120
+   281                                      margem_y            equ     30
+   282                                      fim_tabela_x        equ     620
+   283                                      fim_tabela_y        equ     450
+   284                                  
+   285                                  ; dimensoes e offsets de cada quadradinho do jogo da velha
+   286                                      offset_quadrado_x   equ     10
+   287                                      offset_quadrado_y   equ     10
+   288                                      largura_x           equ     200
+   289                                      altura_y            equ     110
+   290                                  
+   291                                  ; vez do jogador anterior
+   292 00000000 2000                        jogador_anterior    dw      ' '
+   293 00000002 2000                        proximo_jogador     dw      ' '
+   294                                  
+   295                                  ; valores possíveis de linhas e colunas
+   296 00000004 313233                      n_linhas_colunas    db      '1','2','3'
+   297                                  
+   298                                  ; strings pertencentes à tela
+   299 00000007 43616D706F20646520-         campo_cmd           db      'Campo de comando: '
+   300 00000010 636F6D616E646F3A20 
+   301 00000019 43616D706F20646520-         campo_msg           db      'Campo de mensagens: '
+   302 00000022 6D656E736167656E73-
+   303 0000002B 3A20               
+   304                                  
+   305                                  segment stack stack
+   306 00000000 <res 00000080>              resb 128
+   307                                  stacktop:

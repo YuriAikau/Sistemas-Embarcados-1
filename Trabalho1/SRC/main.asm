@@ -21,38 +21,11 @@ segment code
 
     call draw_table
 
-    mov ax,'X'
-    push ax
-    mov ax,0
-    push ax    
-    mov ax,0
-    push ax
-
-    call draw_position
-
     mov ax,'O'
     push ax
-    mov ax,0
-    push ax    
     mov ax,1
     push ax
-
-    call draw_position
-
-    mov ax,'O'
-    push ax
-    mov ax,0
-    push ax    
     mov ax,2
-    push ax
-
-    call draw_position
-
-    mov ax,'X'
-    push ax
-    mov ax,1
-    push ax    
-    mov ax,0
     push ax
 
     call draw_position
@@ -60,44 +33,15 @@ segment code
     mov ax,'a'
     push ax
     mov ax,1
-    push ax   
-    mov ax,1
-    push ax
-
-    call draw_position
-
-    mov ax,'X'
     push ax
     mov ax,1
-    push ax    
-    mov ax,2
     push ax
-
-    call draw_position
-
-    mov ax,'X'
-    push ax
-    mov ax,2
-    push ax    
-    mov ax,0
-    push ax
-
-    call draw_position
-
-    mov ax,'X'
-    push ax
-    mov ax,2
-    push ax    
-    mov ax,1
-    push ax
-
-    call draw_position
 
     mov ax,'O'
     push ax
-    mov ax,2
-    push ax    
-    mov ax,2
+    mov ax,1
+    push ax
+    mov ax,1
     push ax
 
     call draw_position
