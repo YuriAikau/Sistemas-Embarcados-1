@@ -1,7 +1,7 @@
 global invalid_player, double_play, invalid_position, clear_header
 extern cursor, caracter
 extern proximo_jogador
-extern cor, branco_intenso, amarelo, vermelho, azul
+extern cor, branco_intenso, amarelo, magenta_claro, cyan_claro
 
 segment code
 ..start:
@@ -66,7 +66,7 @@ err_dup_play:
 
     cmp word[proximo_jogador],'X'
     je red_x
-    mov word[cor], azul
+    mov word[cor], cyan_claro
 
 next_player_draw
     call	cursor
@@ -84,7 +84,7 @@ next_player_draw
     ret
 
 red_x:
-    mov word[cor], vermelho
+    mov word[cor], magenta_claro
     jmp next_player_draw
 invalid_position:
     pushf

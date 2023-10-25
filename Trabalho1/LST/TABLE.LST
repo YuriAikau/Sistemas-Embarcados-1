@@ -1,6 +1,6 @@
      1                                  extern circle, line, cursor, caracter
      2                                  extern invalid_player, double_play, invalid_position, clear_header
-     3                                  extern cor, azul, vermelho, branco_intenso, amarelo
+     3                                  extern cor, cyan_claro, magenta_claro, branco_intenso, amarelo
      4                                  global draw_table, draw_position
      5                                  global proximo_jogador
      6                                  segment code
@@ -171,7 +171,7 @@
    171 0000011F 29C3                        sub bx,ax
    172 00000121 53                          push bx
    173                                  
-   174 00000122 C706[0000][0000]            mov word[cor], azul
+   174 00000122 C706[0000][0000]            mov word[cor], cyan_claro
    175 00000128 B82D00                      mov ax,(altura_y/2)-offset_quadrado_y
    176 0000012B 50                          push ax
    177                                  
@@ -185,7 +185,7 @@
    185 0000013B E99300                      jmp draw_position_end
    186                                  
    187                                  draw_ecks:
-   188 0000013E C706[0000][0000]            mov word[cor], vermelho
+   188 0000013E C706[0000][0000]            mov word[cor], magenta_claro
    189                                  ; desenhando a primeira "barra" do X
    190 00000144 8B4604                      mov ax,[bp+4] ;posicao c da tabela (0-2)
    191 00000147 48                          dec ax

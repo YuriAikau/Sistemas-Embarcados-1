@@ -5,7 +5,7 @@
 
 global circle, line, cursor, caracter
 global cor, modo_anterior
-global azul, vermelho, branco_intenso, amarelo
+global branco_intenso, amarelo, cyan_claro, magenta_claro
 segment code
 ..start:
     		mov 		ax,data

@@ -1,7 +1,7 @@
      1                                  global invalid_player, double_play, invalid_position, clear_header
      2                                  extern cursor, caracter
      3                                  extern proximo_jogador
-     4                                  extern cor, branco_intenso, amarelo, vermelho, azul
+     4                                  extern cor, branco_intenso, amarelo, magenta_claro, cyan_claro
      5                                  
      6                                  segment code
      7                                  ..start:
@@ -66,7 +66,7 @@
     66                                  
     67 00000055 813E[0000]5800              cmp word[proximo_jogador],'X'
     68 0000005B 7418                        je red_x
-    69 0000005D C706[0000][0000]            mov word[cor], azul
+    69 0000005D C706[0000][0000]            mov word[cor], cyan_claro
     70                                  
     71                                  next_player_draw
     72 00000063 E8(0000)                    call	cursor
@@ -84,7 +84,7 @@
     84 00000074 C3                          ret
     85                                  
     86                                  red_x:
-    87 00000075 C706[0000][0000]            mov word[cor], vermelho
+    87 00000075 C706[0000][0000]            mov word[cor], magenta_claro
     88 0000007B E9E5FF                      jmp next_player_draw
     89                                  invalid_position:
     90 0000007E 9C                          pushf

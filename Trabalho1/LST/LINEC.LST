@@ -5,7 +5,7 @@
      5                                  
      6                                  global circle, line, cursor, caracter
      7                                  global cor, modo_anterior
-     8                                  global azul, vermelho, branco_intenso, amarelo
+     8                                  global branco_intenso, amarelo, cyan_claro, magenta_claro
      9                                  segment code
     10                                  ..start:
     11 00000000 B8[0000]                    		mov 		ax,data
