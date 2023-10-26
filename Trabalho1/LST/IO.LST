@@ -1,6 +1,6 @@
-     1                                  global read_input, cmd_handler, draw_current_cmd
+     1                                  global read_input, cmd_handler, draw_current_cmd, draw_previous_cmd, clear_cmd
      2                                  global cmd
-     3                                  global fecha_jogo, cmd_end
+     3                                  global fecha_jogo, reseta_jogo, cmd_end, prox_posicao
      4                                  extern cursor, caracter
      5                                  extern cor, branco_intenso
      6                                  
@@ -55,10 +55,10 @@
     55 00000034 55                          push		bp
     56                                  
     57                                  read_cmd:
-    58 00000035 8B36[3600]                  mov si,[prox_posicao]
+    58 00000035 8B36[3800]                  mov si,[prox_posicao]
     59                                  
     60                                      ; le caractere do teclado e armazena em AL
-    61 00000039 B408                        mov ah,08h
+    61 00000039 B407                        mov ah,07h
     62 0000003B CD21                        int 21h
     63                                  
     64                                      ;mov word[cmd_end],1 ;temporario
@@ -69,103 +69,162 @@
     69                                  
     70                                      ; verifica se a tecla foi backspace
     71 00000041 3C0D                        cmp al,k_enter
-    72 00000043 7426                        je enter_handler
+    72 00000043 742E                        je enter_handler
     73                                  
     74                                      ; verifica se o comando tem mais que 3 caracteres, ignora os digitados após isso
-    75 00000045 813E[3600]0200              cmp word[prox_posicao],2
+    75 00000045 813E[3800]0200              cmp word[prox_posicao],2
     76 0000004B 7708                        ja read_cmd_end
     77                                  
-    78 0000004D 8884[3300]                  mov [si+cmd],al
-    79 00000051 FF06[3600]                  inc word[prox_posicao]
-    80                                  
-    81                                  read_cmd_end:
-    82 00000055 5D                          pop		bp
-    83 00000056 5F                          pop		di
-    84 00000057 5E                          pop		si
-    85 00000058 5A                          pop		dx
-    86 00000059 59                          pop		cx
-    87 0000005A 5B                          pop		bx
-    88 0000005B 58                          pop		ax
-    89 0000005C 9D                          popf
-    90 0000005D C3                          ret
-    91                                  
-    92                                  ; decrementa a posição do vetor e "apaga o valor na posição"
-    93                                  backspace_handler:
-    94 0000005E 4E                          dec si
-    95 0000005F C684[3300]20                mov byte[si+cmd],' '
-    96 00000064 FF0E[3600]                  dec word[prox_posicao]
-    97 00000068 E9EAFF                      jmp read_cmd_end
-    98                                  
-    99                                  enter_handler:
-   100 0000006B C706[3100]0100              mov word[cmd_end],1
-   101 00000071 E9E1FF                      jmp read_cmd_end
-   102                                  
-   103                                  draw_current_cmd:
-   104 00000074 9C                          pushf
-   105 00000075 50                          push 		ax
-   106 00000076 53                          push 		bx
-   107 00000077 51                          push		cx
-   108 00000078 52                          push		dx
-   109 00000079 56                          push		si
-   110 0000007A 57                          push		di
-   111 0000007B 55                          push		bp
-   112                                  
-   113 0000007C B90200                      mov cx, 2 ; número de numeros de cmd
-   114 0000007F 31DB                        xor bx,bx
-   115 00000081 B600                        mov dh,0
-   116 00000083 B201                        mov dl,1
-   117 00000085 C706[0000][0000]            mov word[cor], branco_intenso
-   118                                  
-   119 0000008B E8(0000)                    call	cursor
-   120 0000008E 8A87[3300]                  mov     al,[bx+cmd]
-   121 00000092 E8(0000)                    call	caracter
-   122 00000095 43                          inc     bx			;proximo caracter
-   123 00000096 FEC2                        inc		dl			;avanca a coluna
-   124                                  
-   125                                  cmd_draw:
-   126 00000098 E8(0000)                    call	cursor
-   127 0000009B 8A87[3300]                  mov     al,[bx+cmd]
-   128 0000009F 0430                        add     al,30h
-   129 000000A1 E8(0000)                    call	caracter
-   130 000000A4 43                          inc     bx			;proximo caracter
-   131 000000A5 FEC2                        inc		dl			;avanca a coluna
-   132 000000A7 E2EF                        loop    cmd_draw
-   133                                  
-   134 000000A9 5D                          pop		bp
-   135 000000AA 5F                          pop		di
-   136 000000AB 5E                          pop		si
-   137 000000AC 5A                          pop		dx
-   138 000000AD 59                          pop		cx
-   139 000000AE 5B                          pop		bx
-   140 000000AF 58                          pop		ax
-   141 000000B0 9D                          popf
-   142 000000B1 C3                          ret
-   143                                  
-   144                                  segment data
-   145                                  ; mensagens iniciais
-   146 00000000 0A4A6F676F20646120-         msg_inicio  db  10,'Jogo da velha x86',10,13,'c (jogo novo) / s (sair): ','$'
-   147 00000009 76656C686120783836-
-   148 00000012 0A0D6320286A6F676F-
-   149 0000001B 206E6F766F29202F20-
-   150 00000024 73202873616972293A-
-   151 0000002D 2024               
-   152                                  
-   153                                  ; status para saber se o jogo deve fechar
-   154 0000002F 0000                        fecha_jogo  dw  0
-   155                                  
-   156                                  ; status para saber se o comando foi confirmado
-   157 00000031 0000                        cmd_end     dw  0
-   158                                  
-   159                                  ; vetor responsável pelo armazenamento da entrada
-   160 00000033 580202                      cmd         db  'X',2,2
-   161                                  
-   162                                  ; variável auxiliar para armazenar a posição no vetor
-   163 00000036 0000                        prox_posicao   dw  0
-   164                                  
-   165                                  ; numeros correspondentes ao caracteres na tabela ASCII
-   166                                      k_backspace   equ 8
-   167                                      k_enter       equ 13
-   168                                  
-   169                                  segment stack stack
-   170 00000000 <res 00000080>              resb 128
-   171                                  stacktop:
+    78                                  save_char:
+    79 0000004D 8884[3500]                  mov [si+cmd],al
+    80 00000051 FF06[3800]                  inc word[prox_posicao]
+    81                                  
+    82                                  read_cmd_end:
+    83 00000055 5D                          pop		bp
+    84 00000056 5F                          pop		di
+    85 00000057 5E                          pop		si
+    86 00000058 5A                          pop		dx
+    87 00000059 59                          pop		cx
+    88 0000005A 5B                          pop		bx
+    89 0000005B 58                          pop		ax
+    90 0000005C 9D                          popf
+    91 0000005D C3                          ret
+    92                                  
+    93                                  ; decrementa a posição do vetor e "apaga o valor na posição"
+    94                                  backspace_handler:
+    95 0000005E 4E                          dec si
+    96 0000005F C684[3500]20                mov byte[si+cmd],' '
+    97 00000064 813E[3800]0000              cmp word[prox_posicao],0
+    98 0000006A 74E9                        je read_cmd_end
+    99 0000006C FF0E[3800]                  dec word[prox_posicao]
+   100 00000070 E9E2FF                      jmp read_cmd_end
+   101                                  
+   102                                  enter_handler:
+   103 00000073 C706[3300]0100              mov word[cmd_end],1
+   104 00000079 E9D9FF                      jmp read_cmd_end
+   105                                  
+   106                                  draw_current_cmd:
+   107 0000007C 9C                          pushf
+   108 0000007D 50                          push 		ax
+   109 0000007E 53                          push 		bx
+   110 0000007F 51                          push		cx
+   111 00000080 52                          push		dx
+   112 00000081 56                          push		si
+   113 00000082 57                          push		di
+   114 00000083 55                          push		bp
+   115                                  
+   116 00000084 B90300                      mov cx, 3 ; número de caracteres no cmd
+   117 00000087 31DB                        xor bx,bx
+   118 00000089 B600                        mov dh,0
+   119 0000008B B218                        mov dl,24
+   120 0000008D C706[0000][0000]            mov word[cor], branco_intenso
+   121                                  
+   122                                  cmd_draw:
+   123 00000093 E8(0000)                    call	cursor
+   124 00000096 8A87[3500]                  mov     al,[bx+cmd]
+   125 0000009A E8(0000)                    call	caracter
+   126 0000009D 43                          inc     bx			;proximo caracter
+   127 0000009E FEC2                        inc		dl			;avanca a coluna
+   128 000000A0 E2F1                        loop    cmd_draw
+   129                                  
+   130 000000A2 5D                          pop		bp
+   131 000000A3 5F                          pop		di
+   132 000000A4 5E                          pop		si
+   133 000000A5 5A                          pop		dx
+   134 000000A6 59                          pop		cx
+   135 000000A7 5B                          pop		bx
+   136 000000A8 58                          pop		ax
+   137 000000A9 9D                          popf
+   138 000000AA C3                          ret
+   139                                  
+   140                                  draw_previous_cmd:
+   141 000000AB 9C                          pushf
+   142 000000AC 50                          push 		ax
+   143 000000AD 53                          push 		bx
+   144 000000AE 51                          push		cx
+   145 000000AF 52                          push		dx
+   146 000000B0 56                          push		si
+   147 000000B1 57                          push		di
+   148 000000B2 55                          push		bp
+   149                                  
+   150 000000B3 B90300                      mov cx, 3 ; número de caracteres no cmd
+   151 000000B6 31DB                        xor bx,bx
+   152 000000B8 B619                        mov dh,25
+   153 000000BA B214                        mov dl,20
+   154                                  
+   155                                  cmd_draw1:
+   156 000000BC E8(0000)                    call	cursor
+   157 000000BF 8A87[3500]                  mov     al,[bx+cmd]
+   158 000000C3 E8(0000)                    call	caracter
+   159 000000C6 43                          inc     bx			;proximo caracter
+   160 000000C7 FEC2                        inc		dl			;avanca a coluna
+   161 000000C9 E2F1                        loop    cmd_draw1
+   162                                  
+   163 000000CB 5D                          pop		bp
+   164 000000CC 5F                          pop		di
+   165 000000CD 5E                          pop		si
+   166 000000CE 5A                          pop		dx
+   167 000000CF 59                          pop		cx
+   168 000000D0 5B                          pop		bx
+   169 000000D1 58                          pop		ax
+   170 000000D2 9D                          popf
+   171 000000D3 C3                          ret
+   172                                  
+   173                                  clear_cmd:
+   174 000000D4 9C                          pushf
+   175 000000D5 50                          push 		ax
+   176 000000D6 53                          push 		bx
+   177 000000D7 51                          push		cx
+   178 000000D8 52                          push		dx
+   179 000000D9 56                          push		si
+   180 000000DA 57                          push		di
+   181 000000DB 55                          push		bp
+   182                                  
+   183 000000DC B90300                      mov cx,3
+   184 000000DF 31DB                        xor bx,bx
+   185                                  clear_cmd1:
+   186 000000E1 C687[3500]20                mov byte[bx+cmd],' '
+   187 000000E6 43                          inc bx
+   188 000000E7 E2F8                        loop clear_cmd1
+   189                                  
+   190 000000E9 E890FF                      call draw_current_cmd
+   191                                  
+   192 000000EC 5D                          pop		bp
+   193 000000ED 5F                          pop		di
+   194 000000EE 5E                          pop		si
+   195 000000EF 5A                          pop		dx
+   196 000000F0 59                          pop		cx
+   197 000000F1 5B                          pop		bx
+   198 000000F2 58                          pop		ax
+   199 000000F3 9D                          popf
+   200 000000F4 C3                          ret
+   201                                  
+   202                                  segment data
+   203                                  ; mensagens iniciais
+   204 00000000 0A4A6F676F20646120-         msg_inicio  db  10,'Jogo da velha x86',10,13,'c (jogo novo) / s (sair): ','$'
+   205 00000009 76656C686120783836-
+   206 00000012 0A0D6320286A6F676F-
+   207 0000001B 206E6F766F29202F20-
+   208 00000024 73202873616972293A-
+   209 0000002D 2024               
+   210                                  
+   211                                  ; status para saber se o jogo deve fechar ou resetar
+   212 0000002F 0000                        fecha_jogo  dw  0
+   213 00000031 0000                        reseta_jogo dw  0
+   214                                  
+   215                                  ; status para saber se o comando foi confirmado
+   216 00000033 0000                        cmd_end     dw  0
+   217                                  
+   218                                  ; vetor responsável pelo armazenamento da entrada
+   219 00000035 202020                      cmd         db  ' ',' ',' '
+   220                                  
+   221                                  ; variável auxiliar para armazenar a posição no vetor
+   222 00000038 0000                        prox_posicao   dw  0
+   223                                  
+   224                                  ; numeros correspondentes ao caracteres na tabela ASCII
+   225                                      k_backspace equ 8
+   226                                      k_enter     equ 13
+   227                                  
+   228                                  segment stack stack
+   229 00000000 <res 00000080>              resb 128
+   230                                  stacktop:

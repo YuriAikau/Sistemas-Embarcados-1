@@ -1,50 +1,117 @@
-     1                                  global game_loop
+     1                                  global game_loop, reset_game
      2                                  global n_jogadas
-     3                                  extern draw_position, cmd_handler, draw_current_cmd
-     4                                  extern cmd, cmd_end
-     5                                  
-     6                                  segment code
-     7                                  ..start:
-     8                                  game_loop:
-     9 00000000 9C                          pushf
-    10 00000001 50                          push 		ax
-    11 00000002 53                          push 		bx
-    12 00000003 51                          push		cx
-    13 00000004 52                          push		dx
-    14 00000005 56                          push		si
-    15 00000006 57                          push		di
-    16 00000007 55                          push		bp
-    17                                  
-    18 00000008 E8(0000)                    call cmd_handler
-    19 0000000B E8(0000)                    call draw_current_cmd
-    20 0000000E 813E[0000]0100              cmp word[cmd_end],1
-    21 00000014 740C                        je process_cmd
-    22 00000016 E9E7FF                      jmp game_loop
-    23                                  
-    24 00000019 5D                          pop		bp
-    25 0000001A 5F                          pop		di
-    26 0000001B 5E                          pop		si
-    27 0000001C 5A                          pop		dx
-    28 0000001D 59                          pop		cx
-    29 0000001E 5B                          pop		bx
-    30 0000001F 58                          pop		ax
-    31 00000020 9D                          popf
-    32 00000021 C3                          ret
-    33                                  
-    34                                  process_cmd:
-    35 00000022 B90300                      mov cx,3 ; número de caracteres em um comando
-    36 00000025 31F6                        xor si,si
-    37                                  stack_cmd:
-    38 00000027 8A84[0000]                  mov al,[si+cmd]
-    39 0000002B 50                          push ax
-    40 0000002C 46                          inc si
-    41 0000002D E2F8                        loop stack_cmd
-    42                                  
-    43 0000002F E8(0000)                    call draw_position
-    44                                  
-    45                                  segment data
-    46                                  ; variável responsável por armazenar quantas jogadas foram feitas no jogo
-    47 00000000 0000                        n_jogadas   dw  0
-    48                                  segment stack stack
-    49 00000000 <res 00000080>              resb 128
-    50                                  stacktop:
+     3                                  extern draw_position, cmd_handler, draw_current_cmd, double_play, clear_character, clear_cmd
+     4                                  extern cmd, cmd_end, prox_posicao, fecha_jogo, reseta_jogo
+     5                                  extern len_campo_input, altura_input
+     6                                  
+     7                                  
+     8                                  segment code
+     9                                  ..start:
+    10                                  game_loop:
+    11 00000000 9C                          pushf
+    12 00000001 50                          push 		ax
+    13 00000002 53                          push 		bx
+    14 00000003 51                          push		cx
+    15 00000004 52                          push		dx
+    16 00000005 56                          push		si
+    17 00000006 57                          push		di
+    18 00000007 55                          push		bp
+    19                                  
+    20                                  game_loop1:
+    21 00000008 E8(0000)                    call cmd_handler
+    22 0000000B E8(0000)                    call draw_current_cmd
+    23 0000000E 813E[0000]0100              cmp word[cmd_end],1
+    24 00000014 740C                        je process_cmd
+    25 00000016 E9EFFF                      jmp game_loop1
+    26                                  
+    27                                  game_loop_end:
+    28 00000019 5D                          pop		bp
+    29 0000001A 5F                          pop		di
+    30 0000001B 5E                          pop		si
+    31 0000001C 5A                          pop		dx
+    32 0000001D 59                          pop		cx
+    33 0000001E 5B                          pop		bx
+    34 0000001F 58                          pop		ax
+    35 00000020 9D                          popf
+    36 00000021 C3                          ret
+    37                                  
+    38                                  process_cmd:
+    39 00000022 813E[0000]0100              cmp word[prox_posicao],1
+    40 00000028 7439                        je verify_c_s
+    41                                  
+    42                                  process_cmd1:
+    43 0000002A B90200                      mov cx,2 ; valor respectivo ao numero de coordenadas, no caso 2 para l e c
+    44 0000002D 31F6                        xor si,si
+    45                                  
+    46 0000002F 8A84[0000]                  mov al,[si+cmd]
+    47 00000033 50                          push ax
+    48 00000034 46                          inc si
+    49                                  stack_cmd:
+    50 00000035 8A84[0000]                  mov al,[si+cmd]
+    51 00000039 2C30                        sub al,30h
+    52 0000003B 50                          push ax
+    53 0000003C 46                          inc si
+    54 0000003D E2F6                        loop stack_cmd
+    55                                  
+    56 0000003F C706[0000]0000              mov word[cmd_end],0
+    57 00000045 C706[0000]0000              mov word[prox_posicao],0
+    58                                  
+    59 0000004B E8(0000)                    call draw_position
+    60                                  
+    61 0000004E B8[0000]                    mov ax,len_campo_input
+    62 00000051 50                          push ax
+    63 00000052 B80300                      mov ax,3
+    64 00000055 50                          push ax
+    65 00000056 B8[0000]                    mov ax,altura_input
+    66 00000059 50                          push ax
+    67 0000005A E8(0000)                    call clear_character
+    68 0000005D E8(0000)                    call clear_cmd
+    69                                  
+    70 00000060 E9A5FF                      jmp game_loop1
+    71                                  
+    72                                  verify_c_s:
+    73 00000063 803E[0000]63                cmp byte[cmd],'c'
+    74 00000068 740A                        je c_handler
+    75 0000006A 803E[0000]73                cmp byte[cmd],'s'
+    76 0000006F 740C                        je s_handler
+    77 00000071 E9B6FF                      jmp process_cmd1
+    78                                  
+    79                                  c_handler:
+    80 00000074 C706[0000]0100              mov word[reseta_jogo],1
+    81 0000007A E99CFF                      jmp game_loop_end
+    82                                  
+    83                                  s_handler:
+    84 0000007D C706[0000]0100              mov word[fecha_jogo],1
+    85 00000083 E993FF                      jmp game_loop_end
+    86                                  
+    87                                  reset_game:
+    88 00000086 9C                          pushf
+    89 00000087 50                          push 		ax
+    90 00000088 53                          push 		bx
+    91 00000089 51                          push		cx
+    92 0000008A 52                          push		dx
+    93 0000008B 56                          push		si
+    94 0000008C 57                          push		di
+    95 0000008D 55                          push		bp
+    96                                  
+    97 0000008E C706[0000]0000              mov word[reseta_jogo],0
+    98 00000094 C706[0000]0000              mov word[prox_posicao],0
+    99 0000009A C706[0000]0000              mov word[cmd_end],0
+   100 000000A0 E8(0000)                    call clear_cmd
+   101                                  
+   102 000000A3 5D                          pop		bp
+   103 000000A4 5F                          pop		di
+   104 000000A5 5E                          pop		si
+   105 000000A6 5A                          pop		dx
+   106 000000A7 59                          pop		cx
+   107 000000A8 5B                          pop		bx
+   108 000000A9 58                          pop		ax
+   109 000000AA 9D                          popf
+   110 000000AB C3                          ret
+   111                                  
+   112                                  segment data
+   113                                  ; variável responsável por armazenar quantas jogadas foram feitas no jogo
+   114 00000000 0000                        n_jogadas   dw  0
+   115                                  segment stack stack
+   116 00000000 <res 00000080>              resb 128
+   117                                  stacktop:

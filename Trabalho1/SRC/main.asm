@@ -2,7 +2,8 @@ extern draw_table, draw_position
 extern modo_anterior
 extern read_input, cmd_handler
 extern fecha_jogo, cmd_end
-extern game_loop
+extern game_loop, reset_game
+extern fecha_jogo, reseta_jogo
 
 segment code
 ..start:
@@ -16,6 +17,7 @@ segment code
     cmp word[fecha_jogo],1
     je main_end
 
+game_start:
 ; salvar modo corrente de video(vendo como est� o modo de video da maquina)
     mov  		ah,0Fh
     int  		10h
@@ -30,15 +32,21 @@ segment code
 
     call game_loop
 
-    mov    	ah,08h
-    int     21h
     mov  	ah,0   			; set video mode
     mov  	al,[modo_anterior]   	; modo anterior
     int  	10h
+
+    cmp word[fecha_jogo],1
+    je main_end
+    cmp word[reseta_jogo],1
+    je game_reset
 main_end:
     mov     ax,4c00h
     int     21h
 
+game_reset:
+    call reset_game
+    jmp game_start
 segment data
 
 

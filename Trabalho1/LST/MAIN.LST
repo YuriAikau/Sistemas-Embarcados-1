@@ -2,46 +2,54 @@
      2                                  extern modo_anterior
      3                                  extern read_input, cmd_handler
      4                                  extern fecha_jogo, cmd_end
-     5                                  extern game_loop
-     6                                  
-     7                                  segment code
-     8                                  ..start:
-     9 00000000 B8[0000]                    mov 		ax,data
-    10 00000003 8ED8                        mov 		ds,ax
-    11 00000005 B8[0000]                    mov 		ax,stack
-    12 00000008 8ED0                        mov 		ss,ax
-    13 0000000A BC[0002]                    mov 		sp,stacktop
-    14                                  
-    15 0000000D E8(0000)                    call read_input
-    16 00000010 813E[0000]0100              cmp word[fecha_jogo],1
-    17 00000016 741E                        je main_end
-    18                                  
-    19                                  ; salvar modo corrente de video(vendo como est� o modo de video da maquina)
-    20 00000018 B40F                        mov  		ah,0Fh
-    21 0000001A CD10                        int  		10h
-    22 0000001C A2[0000]                    mov  		[modo_anterior],al   
-    23                                  
-    24                                  ; alterar modo de video para gr�fico 640x480 16 cores
-    25 0000001F B012                        mov     	al,12h
-    26 00000021 B400                        mov     	ah,0
-    27 00000023 CD10                        int     	10h
-    28                                  
-    29 00000025 E8(0000)                    call draw_table
+     5                                  extern game_loop, reset_game
+     6                                  extern fecha_jogo, reseta_jogo
+     7                                  
+     8                                  segment code
+     9                                  ..start:
+    10 00000000 B8[0000]                    mov 		ax,data
+    11 00000003 8ED8                        mov 		ds,ax
+    12 00000005 B8[0000]                    mov 		ax,stack
+    13 00000008 8ED0                        mov 		ss,ax
+    14 0000000A BC[0002]                    mov 		sp,stacktop
+    15                                  
+    16 0000000D E8(0000)                    call read_input
+    17 00000010 813E[0000]0100              cmp word[fecha_jogo],1
+    18 00000016 742A                        je main_end
+    19                                  
+    20                                  game_start:
+    21                                  ; salvar modo corrente de video(vendo como est� o modo de video da maquina)
+    22 00000018 B40F                        mov  		ah,0Fh
+    23 0000001A CD10                        int  		10h
+    24 0000001C A2[0000]                    mov  		[modo_anterior],al   
+    25                                  
+    26                                  ; alterar modo de video para gr�fico 640x480 16 cores
+    27 0000001F B012                        mov     	al,12h
+    28 00000021 B400                        mov     	ah,0
+    29 00000023 CD10                        int     	10h
     30                                  
-    31 00000028 E8(0000)                    call game_loop
+    31 00000025 E8(0000)                    call draw_table
     32                                  
-    33 0000002B B408                        mov    	ah,08h
-    34 0000002D CD21                        int     21h
-    35 0000002F B400                        mov  	ah,0   			; set video mode
-    36 00000031 A0[0000]                    mov  	al,[modo_anterior]   	; modo anterior
-    37 00000034 CD10                        int  	10h
-    38                                  main_end:
-    39 00000036 B8004C                      mov     ax,4c00h
-    40 00000039 CD21                        int     21h
-    41                                  
-    42                                  segment data
-    43                                  
-    44                                  
-    45                                  segment stack stack
-    46 00000000 <res 00000200>          	resb 		512
-    47                                  stacktop:
+    33 00000028 E8(0000)                    call game_loop
+    34                                  
+    35 0000002B B400                        mov  	ah,0   			; set video mode
+    36 0000002D A0[0000]                    mov  	al,[modo_anterior]   	; modo anterior
+    37 00000030 CD10                        int  	10h
+    38                                  
+    39 00000032 813E[0000]0100              cmp word[fecha_jogo],1
+    40 00000038 7408                        je main_end
+    41 0000003A 813E[0000]0100              cmp word[reseta_jogo],1
+    42 00000040 7405                        je game_reset
+    43                                  main_end:
+    44 00000042 B8004C                      mov     ax,4c00h
+    45 00000045 CD21                        int     21h
+    46                                  
+    47                                  game_reset:
+    48 00000047 E8(0000)                    call reset_game
+    49 0000004A E9CBFF                      jmp game_start
+    50                                  segment data
+    51                                  
+    52                                  
+    53                                  segment stack stack
+    54 00000000 <res 00000200>          	resb 		512
+    55                                  stacktop:

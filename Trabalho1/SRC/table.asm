@@ -1,8 +1,9 @@
-extern circle, line, cursor, caracter
-extern invalid_player, double_play, invalid_position, clear_character
-extern cor, cyan_claro, magenta_claro, branco_intenso, amarelo
 global draw_table, draw_position
 global proximo_jogador
+global len_campo_input, altura_input
+extern circle, line, cursor, caracter
+extern invalid_player, double_play, invalid_position, clear_character, draw_previous_cmd, clear_cmd
+extern cor, cyan_claro, magenta_claro, branco_intenso, amarelo
 segment code
 ..start:
 
@@ -61,6 +62,20 @@ draw_table:
     push		ax
     call		line
 
+    mov cx, len_campo_input ; número de caracteres na mensagem "Campo de comando: "
+    xor bx,bx
+    mov dh,altura_input
+    mov dl,2
+    mov word[cor], branco_intenso
+
+draw_input:
+    call	cursor
+    mov     al,[bx+campo_input]
+    call	caracter
+    inc     bx			;proximo caracter
+    inc		dl			;avanca a coluna
+    loop    draw_input
+
     mov cx, len_campo_cmd ; número de caracteres na mensagem "Campo de comando: "
     xor bx,bx
     mov dh,altura_cmd
@@ -113,6 +128,14 @@ draw_position:
     push		si
     push		di
 
+    mov ax,len_campo_msg
+    push ax
+    mov ax,50
+    push ax
+    mov ax,altura_msg
+    push ax
+    call clear_character
+
     mov ax,[bp+4] ;posicao c da tabela (1-3)
     cmp ax,3
     ja invalid_pos
@@ -125,11 +148,6 @@ draw_position:
     cmp ax,1
     jb invalid_pos
 
-    mov ax,len_campo_msg
-    push ax
-    mov ax,altura_msg
-    push ax
-    call clear_character
     mov ax,[bp+8] ;caractere ASCII correspondente ao símbolo a ser desenhado
     cmp ax,[jogador_anterior]
     je double_play_jmp
@@ -144,9 +162,15 @@ draw_position:
     jmp draw_position_end
 
 draw_ecks1:
+    mov word[cor], magenta_claro
+    call draw_previous_cmd
+    call clear_cmd
     jmp draw_ecks
 
 draw_circle1:
+    mov word[cor], cyan_claro
+    call draw_previous_cmd
+    call clear_cmd
     jmp draw_circle
 
 double_play_jmp:
@@ -158,6 +182,8 @@ invalid_pos:
     call invalid_position
     jmp draw_position_end
 draw_circle:
+    mov word[cor], cyan_claro
+
     mov ax,[bp+4] ;posicao c da tabela (0-2)
     dec ax
     mov bl,largura_x
@@ -175,7 +201,6 @@ draw_circle:
     sub bx,ax
     push bx
 
-    mov word[cor], cyan_claro
     mov ax,(altura_y/2)-offset_quadrado_y
     push ax
 
@@ -300,6 +325,9 @@ segment data
     n_linhas_colunas    db      '1','2','3'
 
 ; strings pertencentes à tela
+    campo_input         db      'Digite o seu comando: '
+    len_campo_input     equ     22
+    altura_input        equ     0
     campo_cmd           db      'Campo de comando: '
     len_campo_cmd       equ     18
     altura_cmd          equ     25

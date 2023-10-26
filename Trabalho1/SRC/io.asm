@@ -1,6 +1,6 @@
-global read_input, cmd_handler, draw_current_cmd
+global read_input, cmd_handler, draw_current_cmd, draw_previous_cmd, clear_cmd
 global cmd
-global fecha_jogo, cmd_end
+global fecha_jogo, reseta_jogo, cmd_end, prox_posicao
 extern cursor, caracter
 extern cor, branco_intenso
 
@@ -58,7 +58,7 @@ read_cmd:
     mov si,[prox_posicao]
 
     ; le caractere do teclado e armazena em AL
-    mov ah,08h
+    mov ah,07h
     int 21h
 
     ;mov word[cmd_end],1 ;temporario
@@ -75,6 +75,7 @@ read_cmd:
     cmp word[prox_posicao],2
     ja read_cmd_end
 
+save_char:
     mov [si+cmd],al
     inc word[prox_posicao]
 
@@ -93,6 +94,8 @@ read_cmd_end:
 backspace_handler:
     dec si
     mov byte[si+cmd],' '
+    cmp word[prox_posicao],0
+    je read_cmd_end
     dec word[prox_posicao]
     jmp read_cmd_end
 
@@ -110,22 +113,15 @@ draw_current_cmd:
     push		di
     push		bp
 
-    mov cx, 2 ; número de numeros de cmd
+    mov cx, 3 ; número de caracteres no cmd
     xor bx,bx
     mov dh,0
-    mov dl,1
+    mov dl,24
     mov word[cor], branco_intenso
-
-    call	cursor
-    mov     al,[bx+cmd]
-    call	caracter
-    inc     bx			;proximo caracter
-    inc		dl			;avanca a coluna
 
 cmd_draw:
     call	cursor
     mov     al,[bx+cmd]
-    add     al,30h
     call	caracter
     inc     bx			;proximo caracter
     inc		dl			;avanca a coluna
@@ -141,25 +137,88 @@ cmd_draw:
     popf
     ret
 
+draw_previous_cmd:
+    pushf
+    push 		ax
+    push 		bx
+    push		cx
+    push		dx
+    push		si
+    push		di
+    push		bp
+
+    mov cx, 3 ; número de caracteres no cmd
+    xor bx,bx
+    mov dh,25
+    mov dl,20
+
+cmd_draw1:
+    call	cursor
+    mov     al,[bx+cmd]
+    call	caracter
+    inc     bx			;proximo caracter
+    inc		dl			;avanca a coluna
+    loop    cmd_draw1
+
+    pop		bp
+    pop		di
+    pop		si
+    pop		dx
+    pop		cx
+    pop		bx
+    pop		ax
+    popf
+    ret
+
+clear_cmd:
+    pushf
+    push 		ax
+    push 		bx
+    push		cx
+    push		dx
+    push		si
+    push		di
+    push		bp
+
+    mov cx,3
+    xor bx,bx
+clear_cmd1:
+    mov byte[bx+cmd],' '
+    inc bx
+    loop clear_cmd1
+
+    call draw_current_cmd
+
+    pop		bp
+    pop		di
+    pop		si
+    pop		dx
+    pop		cx
+    pop		bx
+    pop		ax
+    popf
+    ret
+
 segment data
 ; mensagens iniciais
     msg_inicio  db  10,'Jogo da velha x86',10,13,'c (jogo novo) / s (sair): ','$'
 
-; status para saber se o jogo deve fechar
+; status para saber se o jogo deve fechar ou resetar
     fecha_jogo  dw  0
+    reseta_jogo dw  0
 
 ; status para saber se o comando foi confirmado
     cmd_end     dw  0
 
 ; vetor responsável pelo armazenamento da entrada
-    cmd         db  'X',2,2
+    cmd         db  ' ',' ',' '
 
 ; variável auxiliar para armazenar a posição no vetor
     prox_posicao   dw  0
 
 ; numeros correspondentes ao caracteres na tabela ASCII
-    k_backspace   equ 8
-    k_enter       equ 13
+    k_backspace equ 8
+    k_enter     equ 13
 
 segment stack stack
     resb 128

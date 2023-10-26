@@ -125,7 +125,7 @@ err_invalid_position:
     ret
 
 ; limpa todos os caracteres de uma linha que não sejam parte do texto da tabela
-; push n_caracteres; push altura_linha; call clear_character
+; push offset_caracteres,push n_caracteres; push altura_linha; call clear_character
 clear_character:
     push        bp
     mov         bp,sp
@@ -137,13 +137,14 @@ clear_character:
     push		si
     push		di
 
-    mov ax,[bp+6] ; recupera o número de caracteres "permanentes" da linha
+    mov ax,[bp+8] ; recupera o número de caracteres "permanentes" da linha
 
-    mov cx,78
-    sub cx,ax ; número de caracteres possíveis na mensagem de erro
     and ax,00FFh
     add al,2
     mov dl,al
+
+    mov ax,[bp+6] ; recupera o numero de caracteres a serem apagados
+    mov cx,ax
 
     mov ax,[bp+4] ; valor correspondente ao número da linha
     and ax,00FFh
@@ -165,7 +166,7 @@ clearer:
     pop		ax
     popf
     pop		bp
-    ret     4
+    ret     6
 
 segment data
 ; mensagens de status

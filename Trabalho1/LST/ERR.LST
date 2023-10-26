@@ -125,7 +125,7 @@
    125 000000AC C3                          ret
    126                                  
    127                                  ; limpa todos os caracteres de uma linha que não sejam parte do texto da tabela
-   128                                  ; push n_caracteres; push altura_linha; call clear_character
+   128                                  ; push offset_caracteres,push n_caracteres; push altura_linha; call clear_character
    129                                  clear_character:
    130 000000AD 55                          push        bp
    131 000000AE 89E5                        mov         bp,sp
@@ -137,47 +137,48 @@
    137 000000B5 56                          push		si
    138 000000B6 57                          push		di
    139                                  
-   140 000000B7 8B4606                      mov ax,[bp+6] ; recupera o número de caracteres "permanentes" da linha
+   140 000000B7 8B4608                      mov ax,[bp+8] ; recupera o número de caracteres "permanentes" da linha
    141                                  
-   142 000000BA B94E00                      mov cx,78
-   143 000000BD 29C1                        sub cx,ax ; número de caracteres possíveis na mensagem de erro
-   144 000000BF 25FF00                      and ax,00FFh
-   145 000000C2 0402                        add al,2
-   146 000000C4 88C2                        mov dl,al
-   147                                  
-   148 000000C6 8B4604                      mov ax,[bp+4] ; valor correspondente ao número da linha
-   149 000000C9 25FF00                      and ax,00FFh
-   150 000000CC 88C6                        mov dh,al
-   151 000000CE C706[0000][0000]            mov word[cor], branco_intenso
-   152                                  
-   153                                  clearer:
-   154 000000D4 E8(0000)                    call	cursor
-   155 000000D7 B020                        mov     al,' '
-   156 000000D9 E8(0000)                    call	caracter
-   157 000000DC FEC2                        inc		dl			;avanca a coluna
-   158 000000DE E2F4                        loop    clearer
-   159                                  
-   160 000000E0 5F                          pop		di
-   161 000000E1 5E                          pop		si
-   162 000000E2 5A                          pop		dx
-   163 000000E3 59                          pop		cx
-   164 000000E4 5B                          pop		bx
-   165 000000E5 58                          pop		ax
-   166 000000E6 9D                          popf
-   167 000000E7 5D                          pop		bp
-   168 000000E8 C20400                      ret     4
-   169                                  
-   170                                  segment data
-   171                                  ; mensagens de status
-   172 00000000 566F6365206A61206A-         jogada_dupla        db      'Voce ja jogou, vez do jogador '
-   173 00000009 6F676F752C2076657A-
-   174 00000012 20646F206A6F676164-
-   175 0000001B 6F7220             
-   176 0000001E 4A6F6761646F722069-         jogador_invalido    db      'Jogador invalido!'
-   177 00000027 6E76616C69646F21   
-   178 0000002F 506F736963616F2069-         posicao_invalida    db      'Posicao invalida!'
-   179 00000038 6E76616C69646121   
-   180                                  
-   181                                  segment stack stack
-   182 00000000 <res 00000200>              resb 512
-   183                                  stacktop:
+   142 000000BA 25FF00                      and ax,00FFh
+   143 000000BD 0402                        add al,2
+   144 000000BF 88C2                        mov dl,al
+   145                                  
+   146 000000C1 8B4606                      mov ax,[bp+6] ; recupera o numero de caracteres a serem apagados
+   147 000000C4 89C1                        mov cx,ax
+   148                                  
+   149 000000C6 8B4604                      mov ax,[bp+4] ; valor correspondente ao número da linha
+   150 000000C9 25FF00                      and ax,00FFh
+   151 000000CC 88C6                        mov dh,al
+   152 000000CE C706[0000][0000]            mov word[cor], branco_intenso
+   153                                  
+   154                                  clearer:
+   155 000000D4 E8(0000)                    call	cursor
+   156 000000D7 B020                        mov     al,' '
+   157 000000D9 E8(0000)                    call	caracter
+   158 000000DC FEC2                        inc		dl			;avanca a coluna
+   159 000000DE E2F4                        loop    clearer
+   160                                  
+   161 000000E0 5F                          pop		di
+   162 000000E1 5E                          pop		si
+   163 000000E2 5A                          pop		dx
+   164 000000E3 59                          pop		cx
+   165 000000E4 5B                          pop		bx
+   166 000000E5 58                          pop		ax
+   167 000000E6 9D                          popf
+   168 000000E7 5D                          pop		bp
+   169 000000E8 C20600                      ret     6
+   170                                  
+   171                                  segment data
+   172                                  ; mensagens de status
+   173 00000000 566F6365206A61206A-         jogada_dupla        db      'Voce ja jogou, vez do jogador '
+   174 00000009 6F676F752C2076657A-
+   175 00000012 20646F206A6F676164-
+   176 0000001B 6F7220             
+   177 0000001E 4A6F6761646F722069-         jogador_invalido    db      'Jogador invalido!'
+   178 00000027 6E76616C69646F21   
+   179 0000002F 506F736963616F2069-         posicao_invalida    db      'Posicao invalida!'
+   180 00000038 6E76616C69646121   
+   181                                  
+   182                                  segment stack stack
+   183 00000000 <res 00000200>              resb 512
+   184                                  stacktop:
