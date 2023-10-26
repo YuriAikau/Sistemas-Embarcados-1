@@ -1,4 +1,4 @@
-global invalid_player, double_play, invalid_position, clear_header
+global invalid_player, double_play, invalid_position, clear_character
 extern cursor, caracter
 extern proximo_jogador
 extern cor, branco_intenso, amarelo, magenta_claro, cyan_claro
@@ -6,6 +6,7 @@ extern cor, branco_intenso, amarelo, magenta_claro, cyan_claro
 segment code
 ..start:
 
+; função responsável por escrever o erro na tela correspondente ao jogador ser inválido
 invalid_player:
     pushf
     push 		ax
@@ -40,6 +41,7 @@ err_invalid_player:
     pop		bp
     ret
 
+; função responsável por escrever o erro na tela correspondente ao jogador tentar jogar 2 vezes seguidas
 double_play:
     pushf
     push 		ax
@@ -86,6 +88,8 @@ next_player_draw
 red_x:
     mov word[cor], magenta_claro
     jmp next_player_draw
+
+; função responsável por escrever o erro na tela correspondente à posição na tabela se inválida
 invalid_position:
     pushf
     push 		ax
@@ -120,8 +124,11 @@ err_invalid_position:
     pop		bp
     ret
 
-; limpa o cabeçalho antes de escrever nele
-clear_header:
+; limpa todos os caracteres de uma linha que não sejam parte do texto da tabela
+; push n_caracteres; push altura_linha; call clear_character
+clear_character:
+    push        bp
+    mov         bp,sp
     pushf
     push 		ax
     push 		bx
@@ -129,11 +136,18 @@ clear_header:
     push		dx
     push		si
     push		di
-    push        bp
-    mov cx, 58 ; número de caracteres possíveis na mensagem de erro
-    xor bx,bx
-    mov dh,27
-    mov dl,22
+
+    mov ax,[bp+6] ; recupera o número de caracteres "permanentes" da linha
+
+    mov cx,78
+    sub cx,ax ; número de caracteres possíveis na mensagem de erro
+    and ax,00FFh
+    add al,2
+    mov dl,al
+
+    mov ax,[bp+4] ; valor correspondente ao número da linha
+    and ax,00FFh
+    mov dh,al
     mov word[cor], branco_intenso
 
 clearer:
@@ -143,7 +157,6 @@ clearer:
     inc		dl			;avanca a coluna
     loop    clearer
 
-    pop		bp
     pop		di
     pop		si
     pop		dx
@@ -151,7 +164,8 @@ clearer:
     pop		bx
     pop		ax
     popf
-    ret
+    pop		bp
+    ret     4
 
 segment data
 ; mensagens de status

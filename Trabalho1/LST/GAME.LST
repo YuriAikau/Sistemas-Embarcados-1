@@ -1,0 +1,50 @@
+     1                                  global game_loop
+     2                                  global n_jogadas
+     3                                  extern draw_position, cmd_handler, draw_current_cmd
+     4                                  extern cmd, cmd_end
+     5                                  
+     6                                  segment code
+     7                                  ..start:
+     8                                  game_loop:
+     9 00000000 9C                          pushf
+    10 00000001 50                          push 		ax
+    11 00000002 53                          push 		bx
+    12 00000003 51                          push		cx
+    13 00000004 52                          push		dx
+    14 00000005 56                          push		si
+    15 00000006 57                          push		di
+    16 00000007 55                          push		bp
+    17                                  
+    18 00000008 E8(0000)                    call cmd_handler
+    19 0000000B E8(0000)                    call draw_current_cmd
+    20 0000000E 813E[0000]0100              cmp word[cmd_end],1
+    21 00000014 740C                        je process_cmd
+    22 00000016 E9E7FF                      jmp game_loop
+    23                                  
+    24 00000019 5D                          pop		bp
+    25 0000001A 5F                          pop		di
+    26 0000001B 5E                          pop		si
+    27 0000001C 5A                          pop		dx
+    28 0000001D 59                          pop		cx
+    29 0000001E 5B                          pop		bx
+    30 0000001F 58                          pop		ax
+    31 00000020 9D                          popf
+    32 00000021 C3                          ret
+    33                                  
+    34                                  process_cmd:
+    35 00000022 B90300                      mov cx,3 ; número de caracteres em um comando
+    36 00000025 31F6                        xor si,si
+    37                                  stack_cmd:
+    38 00000027 8A84[0000]                  mov al,[si+cmd]
+    39 0000002B 50                          push ax
+    40 0000002C 46                          inc si
+    41 0000002D E2F8                        loop stack_cmd
+    42                                  
+    43 0000002F E8(0000)                    call draw_position
+    44                                  
+    45                                  segment data
+    46                                  ; variável responsável por armazenar quantas jogadas foram feitas no jogo
+    47 00000000 0000                        n_jogadas   dw  0
+    48                                  segment stack stack
+    49 00000000 <res 00000080>              resb 128
+    50                                  stacktop:

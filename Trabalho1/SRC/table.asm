@@ -1,5 +1,5 @@
 extern circle, line, cursor, caracter
-extern invalid_player, double_play, invalid_position, clear_header
+extern invalid_player, double_play, invalid_position, clear_character
 extern cor, cyan_claro, magenta_claro, branco_intenso, amarelo
 global draw_table, draw_position
 global proximo_jogador
@@ -61,9 +61,9 @@ draw_table:
     push		ax
     call		line
 
-    mov cx, 18 ; número de caracteres na mensagem "Campo de comando: "
+    mov cx, len_campo_cmd ; número de caracteres na mensagem "Campo de comando: "
     xor bx,bx
-    mov dh,25
+    mov dh,altura_cmd
     mov dl,2
     mov word[cor], branco_intenso
 
@@ -75,9 +75,9 @@ draw_cmd:
     inc		dl			;avanca a coluna
     loop    draw_cmd
 
-    mov cx, 20 ; número de caracteres na mensagem "Campo de mensagens: "
+    mov cx, len_campo_msg ; número de caracteres na mensagem "Campo de mensagens: "
     xor bx,bx
-    mov dh,27
+    mov dh,altura_msg
     mov dl,2
     mov word[cor], branco_intenso
 
@@ -113,26 +113,30 @@ draw_position:
     push		si
     push		di
 
-    mov ax,[bp+4] ;posicao c da tabela (0-2)
+    mov ax,[bp+4] ;posicao c da tabela (1-3)
     cmp ax,3
     ja invalid_pos
     cmp ax,1
     jb invalid_pos
 
-    mov ax,[bp+6] ;posicao l da tabela (0-2)
+    mov ax,[bp+6] ;posicao l da tabela (1-3)
     cmp ax,3
     ja invalid_pos
     cmp ax,1
     jb invalid_pos
 
-    call clear_header
+    mov ax,len_campo_msg
+    push ax
+    mov ax,altura_msg
+    push ax
+    call clear_character
     mov ax,[bp+8] ;caractere ASCII correspondente ao símbolo a ser desenhado
     cmp ax,[jogador_anterior]
     je double_play_jmp
 
     cmp ax,'X'
     je draw_ecks1
-    cmp ax,'O'
+    cmp ax,'C'
     je draw_circle1
 
     call invalid_player
@@ -177,7 +181,7 @@ draw_circle:
 
     call circle
 
-    mov ax,'O'
+    mov ax,'C'
     mov word[jogador_anterior],ax
     mov ax,'X'
     mov word[proximo_jogador],ax
@@ -258,7 +262,7 @@ draw_ecks:
 
     mov ax,'X'
     mov word[jogador_anterior],ax
-    mov ax,'O'
+    mov ax,'C'
     mov word[proximo_jogador],ax
 
     jmp draw_position_end
@@ -297,7 +301,11 @@ segment data
 
 ; strings pertencentes à tela
     campo_cmd           db      'Campo de comando: '
+    len_campo_cmd       equ     18
+    altura_cmd          equ     25
     campo_msg           db      'Campo de mensagens: '
+    len_campo_msg       equ     20
+    altura_msg          equ     27
 
 segment stack stack
     resb 128

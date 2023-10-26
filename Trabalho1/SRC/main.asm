@@ -1,5 +1,8 @@
 extern draw_table, draw_position
 extern modo_anterior
+extern read_input, cmd_handler
+extern fecha_jogo, cmd_end
+extern game_loop
 
 segment code
 ..start:
@@ -8,6 +11,10 @@ segment code
     mov 		ax,stack
     mov 		ss,ax
     mov 		sp,stacktop
+
+    call read_input
+    cmp word[fecha_jogo],1
+    je main_end
 
 ; salvar modo corrente de video(vendo como est� o modo de video da maquina)
     mov  		ah,0Fh
@@ -21,40 +28,19 @@ segment code
 
     call draw_table
 
-    mov ax,'O'
-    push ax
-    mov ax,1
-    push ax
-    mov ax,2
-    push ax
+    call game_loop
 
-    call draw_position
-
-    mov ax,'a'
-    push ax
-    mov ax,1
-    push ax
-    mov ax,1
-    push ax
-
-    mov ax,'O'
-    push ax
-    mov ax,1
-    push ax
-    mov ax,1
-    push ax
-
-    call draw_position
-        
     mov    	ah,08h
     int     21h
     mov  	ah,0   			; set video mode
     mov  	al,[modo_anterior]   	; modo anterior
     int  	10h
+main_end:
     mov     ax,4c00h
     int     21h
 
 segment data
+
 
 segment stack stack
 	resb 		512
