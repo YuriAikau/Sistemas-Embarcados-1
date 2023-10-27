@@ -1,4 +1,5 @@
-global invalid_player, double_play, invalid_position, clear_character
+global invalid_player, double_play, invalid_position, position_filled, match_draw, clear_character
+extern matriz_tabela
 extern cursor, caracter
 extern proximo_jogador
 extern cor, branco_intenso, amarelo, magenta_claro, cyan_claro
@@ -17,7 +18,7 @@ invalid_player:
     push		di
     push		bp
 
-    mov cx, 17 ; número de caracteres na mensagem de erro
+    mov cx, len_jogador_invalido ; número de caracteres na mensagem de erro
     xor bx,bx
     mov dh,27
     mov dl,22
@@ -52,11 +53,11 @@ double_play:
     push		di
     push		bp
 
-    mov cx, 30 ; número de caracteres na mensagem de erro
+    mov cx, len_jogada_dupla ; número de caracteres na mensagem de erro
     xor bx,bx
     mov dh,27
     mov dl,22
-    mov word[cor], branco_intenso
+    mov word[cor], amarelo
 
 err_dup_play:
     call	cursor
@@ -100,7 +101,7 @@ invalid_position:
     push		di
     push		bp
 
-    mov cx, 17 ; número de caracteres na mensagem de erro
+    mov cx, len_posicao_invalida ; número de caracteres na mensagem de erro
     xor bx,bx
     mov dh,27
     mov dl,22
@@ -113,6 +114,74 @@ err_invalid_position:
     inc     bx			;proximo caracter
     inc		dl			;avanca a coluna
     loop    err_invalid_position
+
+    pop		di
+    pop		si
+    pop		dx
+    pop		cx
+    pop		bx
+    pop		ax
+    popf
+    pop		bp
+    ret
+
+position_filled:
+    pushf
+    push 		ax
+    push 		bx
+    push		cx
+    push		dx
+    push		si
+    push		di
+    push		bp
+
+    mov cx, len_posicao_preenchida ; número de caracteres na mensagem de erro
+    xor bx,bx
+    mov dh,27
+    mov dl,22
+    mov word[cor], amarelo
+
+err_position_filled:
+    call	cursor
+    mov     al,[bx+posicao_preenchida]
+    call	caracter
+    inc     bx			;proximo caracter
+    inc		dl			;avanca a coluna
+    loop    err_position_filled
+
+    pop		di
+    pop		si
+    pop		dx
+    pop		cx
+    pop		bx
+    pop		ax
+    popf
+    pop		bp
+    ret
+
+match_draw:
+    pushf
+    push 		ax
+    push 		bx
+    push		cx
+    push		dx
+    push		si
+    push		di
+    push		bp
+
+    mov cx, len_msg_empate ; número de caracteres na mensagem de empate
+    xor bx,bx
+    mov dh,27
+    mov dl,22
+    mov word[cor], amarelo
+
+match_draw1:
+    call	cursor
+    mov     al,[bx+msg_empate]
+    call	caracter
+    inc     bx			;proximo caracter
+    inc		dl			;avanca a coluna
+    loop    match_draw1
 
     pop		di
     pop		si
@@ -170,9 +239,17 @@ clearer:
 
 segment data
 ; mensagens de status
-    jogada_dupla        db      'Voce ja jogou, vez do jogador '
-    jogador_invalido    db      'Jogador invalido!'
-    posicao_invalida    db      'Posicao invalida!'
+    jogada_dupla            db      'Voce ja jogou, vez do jogador '
+    len_jogada_dupla        equ      30
+    jogador_invalido        db      'Jogador invalido!'
+    len_jogador_invalido    equ      17
+    posicao_invalida        db      'Posicao invalida!'
+    len_posicao_invalida    equ      17
+    posicao_preenchida      db      'Posicao ja preenchida!'
+    len_posicao_preenchida  equ      22
+    msg_empate              db      'Empate!'
+    len_msg_empate          equ      7
+
 
 segment stack stack
     resb 512

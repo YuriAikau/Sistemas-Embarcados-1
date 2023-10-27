@@ -5,7 +5,7 @@
 
 global circle, line, cursor, caracter
 global cor, modo_anterior
-global branco_intenso, amarelo, cyan_claro, magenta_claro
+global branco_intenso, amarelo, cyan_claro, magenta_claro, verde_claro
 segment code
 ..start:
 ;***************************************************************************

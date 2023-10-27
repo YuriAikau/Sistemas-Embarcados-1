@@ -1,0 +1,480 @@
+     1                                  global verify_winner, match_win
+     2                                  extern line, cursor, caracter
+     3                                  extern cor, verde_claro, cyan_claro, magenta_claro
+     4                                  extern offset_tabela_x, offset_tabela_y, fim_tabela_x, fim_tabela_y
+     5                                  extern matriz_tabela, jogador_anterior, vitoria
+     6                                  segment code
+     7                                  ..start:
+     8                                  
+     9                                  ; função responsável por verificar se uma jogada vence a partida
+    10                                  verify_winner:
+    11 00000000 9C                          pushf
+    12 00000001 50                          push 		ax
+    13 00000002 53                          push 		bx
+    14 00000003 51                          push		cx
+    15 00000004 52                          push		dx
+    16 00000005 56                          push		si
+    17 00000006 57                          push		di
+    18 00000007 55                          push		bp
+    19                                  
+    20                                  ; checa a primeira linha
+    21                                  cond1:
+    22 00000008 A0[0000]                    mov al,byte[matriz_tabela+0]
+    23 0000000B 3B06[0000]                  cmp ax, [jogador_anterior]
+    24 0000000F 751E                        jne cond2
+    25 00000011 A0[0100]                    mov al,byte[matriz_tabela+1]
+    26 00000014 3B06[0000]                  cmp ax, [jogador_anterior]
+    27 00000018 7515                        jne cond2
+    28 0000001A A0[0200]                    mov al,byte[matriz_tabela+2]
+    29 0000001D 3B06[0000]                  cmp ax, [jogador_anterior]
+    30 00000021 750C                        jne cond2
+    31 00000023 E82001                      call draw_win1
+    32 00000026 C706[0000]0100              mov word[vitoria],1
+    33 0000002C E90E01                      jmp verify_winner_end
+    34                                  
+    35                                  ;verifica a segunda linha
+    36                                  cond2:
+    37 0000002F A0[0300]                    mov al,byte[matriz_tabela+3]
+    38 00000032 3B06[0000]                  cmp ax, [jogador_anterior]
+    39 00000036 751E                        jne cond3
+    40 00000038 A0[0400]                    mov al,byte[matriz_tabela+4]
+    41 0000003B 3B06[0000]                  cmp ax, [jogador_anterior]
+    42 0000003F 7515                        jne cond3
+    43 00000041 A0[0500]                    mov al,byte[matriz_tabela+5]
+    44 00000044 3B06[0000]                  cmp ax, [jogador_anterior]
+    45 00000048 750C                        jne cond3
+    46 0000004A E82401                      call draw_win2
+    47 0000004D C706[0000]0100              mov word[vitoria],1
+    48 00000053 E9E700                      jmp verify_winner_end
+    49                                  
+    50                                  ;verifica a terceira linha
+    51                                  cond3:
+    52 00000056 A0[0600]                    mov al,byte[matriz_tabela+6]
+    53 00000059 3B06[0000]                  cmp ax, [jogador_anterior]
+    54 0000005D 751E                        jne cond4
+    55 0000005F A0[0700]                    mov al,byte[matriz_tabela+7]
+    56 00000062 3B06[0000]                  cmp ax, [jogador_anterior]
+    57 00000066 7515                        jne cond4
+    58 00000068 A0[0800]                    mov al,byte[matriz_tabela+8]
+    59 0000006B 3B06[0000]                  cmp ax, [jogador_anterior]
+    60 0000006F 750C                        jne cond4
+    61 00000071 E82801                      call draw_win3
+    62 00000074 C706[0000]0100              mov word[vitoria],1
+    63 0000007A E9C000                      jmp verify_winner_end
+    64                                  
+    65                                  ;verifica a primeira coluna
+    66                                  cond4:
+    67 0000007D A0[0000]                    mov al,byte[matriz_tabela+0]
+    68 00000080 3B06[0000]                  cmp ax, [jogador_anterior]
+    69 00000084 751E                        jne cond5
+    70 00000086 A0[0300]                    mov al,byte[matriz_tabela+3]
+    71 00000089 3B06[0000]                  cmp ax, [jogador_anterior]
+    72 0000008D 7515                        jne cond5
+    73 0000008F A0[0600]                    mov al,byte[matriz_tabela+6]
+    74 00000092 3B06[0000]                  cmp ax, [jogador_anterior]
+    75 00000096 750C                        jne cond5
+    76 00000098 E82C01                      call draw_win4
+    77 0000009B C706[0000]0100              mov word[vitoria],1
+    78 000000A1 E99900                      jmp verify_winner_end
+    79                                  
+    80                                  ;verifica a segunda coluna
+    81                                  cond5:
+    82 000000A4 A0[0100]                    mov al,byte[matriz_tabela+1]
+    83 000000A7 3B06[0000]                  cmp ax, [jogador_anterior]
+    84 000000AB 751E                        jne cond6
+    85 000000AD A0[0400]                    mov al,byte[matriz_tabela+4]
+    86 000000B0 3B06[0000]                  cmp ax, [jogador_anterior]
+    87 000000B4 7515                        jne cond6
+    88 000000B6 A0[0700]                    mov al,byte[matriz_tabela+7]
+    89 000000B9 3B06[0000]                  cmp ax, [jogador_anterior]
+    90 000000BD 750C                        jne cond6
+    91 000000BF E83001                      call draw_win5
+    92 000000C2 C706[0000]0100              mov word[vitoria],1
+    93 000000C8 E97200                      jmp verify_winner_end
+    94                                  
+    95                                  ;verifica a terceira coluna
+    96                                  cond6:
+    97 000000CB A0[0200]                    mov al,byte[matriz_tabela+2]
+    98 000000CE 3B06[0000]                  cmp ax, [jogador_anterior]
+    99 000000D2 751E                        jne cond7
+   100 000000D4 A0[0500]                    mov al,byte[matriz_tabela+5]
+   101 000000D7 3B06[0000]                  cmp ax, [jogador_anterior]
+   102 000000DB 7515                        jne cond7
+   103 000000DD A0[0800]                    mov al,byte[matriz_tabela+8]
+   104 000000E0 3B06[0000]                  cmp ax, [jogador_anterior]
+   105 000000E4 750C                        jne cond7
+   106 000000E6 E83401                      call draw_win6
+   107 000000E9 C706[0000]0100              mov word[vitoria],1
+   108 000000EF E94B00                      jmp verify_winner_end
+   109                                  
+   110                                  ;verifica a diagonal principal
+   111                                  cond7:
+   112 000000F2 A0[0000]                    mov al,byte[matriz_tabela+0]
+   113 000000F5 3B06[0000]                  cmp ax, [jogador_anterior]
+   114 000000F9 751E                        jne cond8
+   115 000000FB A0[0400]                    mov al,byte[matriz_tabela+4]
+   116 000000FE 3B06[0000]                  cmp ax, [jogador_anterior]
+   117 00000102 7515                        jne cond8
+   118 00000104 A0[0800]                    mov al,byte[matriz_tabela+8]
+   119 00000107 3B06[0000]                  cmp ax, [jogador_anterior]
+   120 0000010B 750C                        jne cond8
+   121 0000010D E83801                      call draw_win7
+   122 00000110 C706[0000]0100              mov word[vitoria],1
+   123 00000116 E92400                      jmp verify_winner_end
+   124                                  
+   125                                  ;verifica a diagonal secundaria
+   126                                  cond8:
+   127 00000119 A0[0200]                    mov al,byte[matriz_tabela+2]
+   128 0000011C 3B06[0000]                  cmp ax, [jogador_anterior]
+   129 00000120 751B                        jne verify_winner_end
+   130 00000122 A0[0400]                    mov al,byte[matriz_tabela+4]
+   131 00000125 3B06[0000]                  cmp ax, [jogador_anterior]
+   132 00000129 7512                        jne verify_winner_end
+   133 0000012B A0[0600]                    mov al,byte[matriz_tabela+6]
+   134 0000012E 3B06[0000]                  cmp ax, [jogador_anterior]
+   135 00000132 7509                        jne verify_winner_end
+   136 00000134 E83B01                      call draw_win8
+   137 00000137 C706[0000]0100              mov word[vitoria],1
+   138                                  
+   139                                  verify_winner_end:
+   140 0000013D 5D                          pop		bp
+   141 0000013E 5F                          pop		di
+   142 0000013F 5E                          pop		si
+   143 00000140 5A                          pop		dx
+   144 00000141 59                          pop		cx
+   145 00000142 5B                          pop		bx
+   146 00000143 58                          pop		ax
+   147 00000144 9D                          popf
+   148 00000145 C3                          ret
+   149                                  draw_win1:
+   150 00000146 9C                          pushf
+   151 00000147 50                          push 		ax
+   152 00000148 53                          push 		bx
+   153 00000149 51                          push		cx
+   154 0000014A 52                          push		dx
+   155 0000014B 56                          push		si
+   156 0000014C 57                          push		di
+   157 0000014D 55                          push		bp
+   158                                  
+   159 0000014E C706[0000][0000]            mov word[cor], verde_claro
+   160                                  
+   161 00000154 B8[0000]                    mov ax,offset_tabela_x
+   162 00000157 50                          push ax ; x1 da função line
+   163 00000158 B8[1301]                    mov ax,offset_tabela_y+275 ; 2*altura+altura/2
+   164 0000015B 89C2                        mov dx,ax
+   165 0000015D 50                          push ax ; y1 da função line
+   166                                  
+   167 0000015E B8[0000]                    mov ax,fim_tabela_x
+   168 00000161 50                          push ax ; x2 da função line
+   169 00000162 89D0                        mov ax,dx
+   170 00000164 50                          push ax ; y1 da função line
+   171                                  
+   172 00000165 E8(0000)                    call line
+   173                                  
+   174 00000168 5D                          pop		bp
+   175 00000169 5F                          pop		di
+   176 0000016A 5E                          pop		si
+   177 0000016B 5A                          pop		dx
+   178 0000016C 59                          pop		cx
+   179 0000016D 5B                          pop		bx
+   180 0000016E 58                          pop		ax
+   181 0000016F 9D                          popf
+   182 00000170 C3                          ret
+   183                                  
+   184                                  draw_win2:
+   185 00000171 9C                          pushf
+   186 00000172 50                          push 		ax
+   187 00000173 53                          push 		bx
+   188 00000174 51                          push		cx
+   189 00000175 52                          push		dx
+   190 00000176 56                          push		si
+   191 00000177 57                          push		di
+   192 00000178 55                          push		bp
+   193                                  
+   194 00000179 C706[0000][0000]            mov word[cor], verde_claro
+   195                                  
+   196 0000017F B8[0000]                    mov ax,offset_tabela_x
+   197 00000182 50                          push ax ; x1 da função line
+   198 00000183 B8[A500]                    mov ax,offset_tabela_y+165 ; altura+altura/2
+   199 00000186 89C2                        mov dx,ax
+   200 00000188 50                          push ax ; y1 da função line
+   201                                  
+   202 00000189 B8[0000]                    mov ax,fim_tabela_x
+   203 0000018C 50                          push ax ; x2 da função line
+   204 0000018D 89D0                        mov ax,dx
+   205 0000018F 50                          push ax ; y1 da função line
+   206                                  
+   207 00000190 E8(0000)                    call line
+   208                                  
+   209 00000193 5D                          pop		bp
+   210 00000194 5F                          pop		di
+   211 00000195 5E                          pop		si
+   212 00000196 5A                          pop		dx
+   213 00000197 59                          pop		cx
+   214 00000198 5B                          pop		bx
+   215 00000199 58                          pop		ax
+   216 0000019A 9D                          popf
+   217 0000019B C3                          ret
+   218                                  
+   219                                  draw_win3:
+   220 0000019C 9C                          pushf
+   221 0000019D 50                          push 		ax
+   222 0000019E 53                          push 		bx
+   223 0000019F 51                          push		cx
+   224 000001A0 52                          push		dx
+   225 000001A1 56                          push		si
+   226 000001A2 57                          push		di
+   227 000001A3 55                          push		bp
+   228                                  
+   229 000001A4 C706[0000][0000]            mov word[cor], verde_claro
+   230                                  
+   231 000001AA B8[0000]                    mov ax,offset_tabela_x
+   232 000001AD 50                          push ax ; x1 da função line
+   233 000001AE B8[3700]                    mov ax,offset_tabela_y+55 ; altura/2
+   234 000001B1 89C2                        mov dx,ax
+   235 000001B3 50                          push ax ; y1 da função line
+   236                                  
+   237 000001B4 B8[0000]                    mov ax,fim_tabela_x
+   238 000001B7 50                          push ax ; x2 da função line
+   239 000001B8 89D0                        mov ax,dx
+   240 000001BA 50                          push ax ; y1 da função line
+   241                                  
+   242 000001BB E8(0000)                    call line
+   243                                  
+   244 000001BE 5D                          pop		bp
+   245 000001BF 5F                          pop		di
+   246 000001C0 5E                          pop		si
+   247 000001C1 5A                          pop		dx
+   248 000001C2 59                          pop		cx
+   249 000001C3 5B                          pop		bx
+   250 000001C4 58                          pop		ax
+   251 000001C5 9D                          popf
+   252 000001C6 C3                          ret
+   253                                  
+   254                                  draw_win4:
+   255 000001C7 9C                          pushf
+   256 000001C8 50                          push 		ax
+   257 000001C9 53                          push 		bx
+   258 000001CA 51                          push		cx
+   259 000001CB 52                          push		dx
+   260 000001CC 56                          push		si
+   261 000001CD 57                          push		di
+   262 000001CE 55                          push		bp
+   263                                  
+   264 000001CF C706[0000][0000]            mov word[cor], verde_claro
+   265                                  
+   266 000001D5 B8[6400]                    mov ax,offset_tabela_x+100 ; largura/2
+   267 000001D8 89C2                        mov dx,ax
+   268 000001DA 50                          push ax ; x1 da função line
+   269 000001DB B8[0000]                    mov ax,offset_tabela_y
+   270 000001DE 50                          push ax ; y1 da função line
+   271                                  
+   272 000001DF 89D0                        mov ax,dx
+   273 000001E1 50                          push ax ; x2 da função line
+   274 000001E2 B8[0000]                    mov ax,fim_tabela_y
+   275 000001E5 50                          push ax ; y1 da função line
+   276                                  
+   277 000001E6 E8(0000)                    call line
+   278                                  
+   279 000001E9 5D                          pop		bp
+   280 000001EA 5F                          pop		di
+   281 000001EB 5E                          pop		si
+   282 000001EC 5A                          pop		dx
+   283 000001ED 59                          pop		cx
+   284 000001EE 5B                          pop		bx
+   285 000001EF 58                          pop		ax
+   286 000001F0 9D                          popf
+   287 000001F1 C3                          ret
+   288                                  
+   289                                  draw_win5:
+   290 000001F2 9C                          pushf
+   291 000001F3 50                          push 		ax
+   292 000001F4 53                          push 		bx
+   293 000001F5 51                          push		cx
+   294 000001F6 52                          push		dx
+   295 000001F7 56                          push		si
+   296 000001F8 57                          push		di
+   297 000001F9 55                          push		bp
+   298                                  
+   299 000001FA C706[0000][0000]            mov word[cor], verde_claro
+   300                                  
+   301 00000200 B8[2C01]                    mov ax,offset_tabela_x+300 ; largura+largura/2
+   302 00000203 89C2                        mov dx,ax
+   303 00000205 50                          push ax ; x1 da função line
+   304 00000206 B8[0000]                    mov ax,offset_tabela_y
+   305 00000209 50                          push ax ; y1 da função line
+   306                                  
+   307 0000020A 89D0                        mov ax,dx
+   308 0000020C 50                          push ax ; x2 da função line
+   309 0000020D B8[0000]                    mov ax,fim_tabela_y
+   310 00000210 50                          push ax ; y1 da função line
+   311                                  
+   312 00000211 E8(0000)                    call line
+   313                                  
+   314 00000214 5D                          pop		bp
+   315 00000215 5F                          pop		di
+   316 00000216 5E                          pop		si
+   317 00000217 5A                          pop		dx
+   318 00000218 59                          pop		cx
+   319 00000219 5B                          pop		bx
+   320 0000021A 58                          pop		ax
+   321 0000021B 9D                          popf
+   322 0000021C C3                          ret
+   323                                  
+   324                                  draw_win6:
+   325 0000021D 9C                          pushf
+   326 0000021E 50                          push 		ax
+   327 0000021F 53                          push 		bx
+   328 00000220 51                          push		cx
+   329 00000221 52                          push		dx
+   330 00000222 56                          push		si
+   331 00000223 57                          push		di
+   332 00000224 55                          push		bp
+   333                                  
+   334 00000225 C706[0000][0000]            mov word[cor], verde_claro
+   335                                  
+   336 0000022B B8[F401]                    mov ax,offset_tabela_x+500 ; 2*largura+largura/2
+   337 0000022E 89C2                        mov dx,ax
+   338 00000230 50                          push ax ; x1 da função line
+   339 00000231 B8[0000]                    mov ax,offset_tabela_y
+   340 00000234 50                          push ax ; y1 da função line
+   341                                  
+   342 00000235 89D0                        mov ax,dx
+   343 00000237 50                          push ax ; x2 da função line
+   344 00000238 B8[0000]                    mov ax,fim_tabela_y
+   345 0000023B 50                          push ax ; y1 da função line
+   346                                  
+   347 0000023C E8(0000)                    call line
+   348                                  
+   349 0000023F 5D                          pop		bp
+   350 00000240 5F                          pop		di
+   351 00000241 5E                          pop		si
+   352 00000242 5A                          pop		dx
+   353 00000243 59                          pop		cx
+   354 00000244 5B                          pop		bx
+   355 00000245 58                          pop		ax
+   356 00000246 9D                          popf
+   357 00000247 C3                          ret
+   358                                  
+   359                                  draw_win7:
+   360 00000248 9C                          pushf
+   361 00000249 50                          push 		ax
+   362 0000024A 53                          push 		bx
+   363 0000024B 51                          push		cx
+   364 0000024C 52                          push		dx
+   365 0000024D 56                          push		si
+   366 0000024E 57                          push		di
+   367 0000024F 55                          push		bp
+   368                                  
+   369 00000250 C706[0000][0000]            mov word[cor], verde_claro
+   370                                  
+   371 00000256 B8[0000]                    mov ax,offset_tabela_x
+   372 00000259 50                          push ax ; x1 da função line
+   373 0000025A B8[0000]                    mov ax,fim_tabela_y
+   374 0000025D 50                          push ax ; y1 da função line
+   375                                  
+   376 0000025E B8[0000]                    mov ax,fim_tabela_x
+   377 00000261 50                          push ax ; x2 da função line
+   378 00000262 B8[0000]                    mov ax,offset_tabela_y
+   379 00000265 50                          push ax ; y1 da função line
+   380                                  
+   381 00000266 E8(0000)                    call line
+   382                                  
+   383 00000269 5D                          pop		bp
+   384 0000026A 5F                          pop		di
+   385 0000026B 5E                          pop		si
+   386 0000026C 5A                          pop		dx
+   387 0000026D 59                          pop		cx
+   388 0000026E 5B                          pop		bx
+   389 0000026F 58                          pop		ax
+   390 00000270 9D                          popf
+   391 00000271 C3                          ret
+   392                                  
+   393                                  draw_win8:
+   394 00000272 9C                          pushf
+   395 00000273 50                          push 		ax
+   396 00000274 53                          push 		bx
+   397 00000275 51                          push		cx
+   398 00000276 52                          push		dx
+   399 00000277 56                          push		si
+   400 00000278 57                          push		di
+   401 00000279 55                          push		bp
+   402                                  
+   403 0000027A C706[0000][0000]            mov word[cor], verde_claro
+   404                                  
+   405 00000280 B8[0000]                    mov ax,offset_tabela_x
+   406 00000283 50                          push ax ; x1 da função line
+   407 00000284 B8[0000]                    mov ax,offset_tabela_y
+   408 00000287 50                          push ax ; y1 da função line
+   409                                  
+   410 00000288 B8[0000]                    mov ax,fim_tabela_x
+   411 0000028B 50                          push ax ; x2 da função line
+   412 0000028C B8[0000]                    mov ax,fim_tabela_y
+   413 0000028F 50                          push ax ; y1 da função line
+   414                                  
+   415 00000290 E8(0000)                    call line
+   416                                  
+   417 00000293 5D                          pop		bp
+   418 00000294 5F                          pop		di
+   419 00000295 5E                          pop		si
+   420 00000296 5A                          pop		dx
+   421 00000297 59                          pop		cx
+   422 00000298 5B                          pop		bx
+   423 00000299 58                          pop		ax
+   424 0000029A 9D                          popf
+   425 0000029B C3                          ret
+   426                                  
+   427                                  match_win:
+   428 0000029C 9C                          pushf
+   429 0000029D 50                          push 		ax
+   430 0000029E 53                          push 		bx
+   431 0000029F 51                          push		cx
+   432 000002A0 52                          push		dx
+   433 000002A1 56                          push		si
+   434 000002A2 57                          push		di
+   435 000002A3 55                          push		bp
+   436                                  
+   437 000002A4 B91300                      mov cx, len_msg_vitoria ; número de caracteres na mensagem de vitória
+   438 000002A7 31DB                        xor bx,bx
+   439 000002A9 B61B                        mov dh,27
+   440 000002AB B216                        mov dl,22
+   441 000002AD C706[0000][0000]            mov word[cor], verde_claro
+   442                                  
+   443                                  match_win1:
+   444 000002B3 E8(0000)                    call	cursor
+   445 000002B6 8A87[0000]                  mov     al,[bx+msg_vitoria]
+   446 000002BA E8(0000)                    call	caracter
+   447 000002BD 43                          inc     bx			;proximo caracter
+   448 000002BE FEC2                        inc		dl			;avanca a coluna
+   449 000002C0 E2F1                        loop    match_win1
+   450                                  
+   451 000002C2 813E[0000]5800              cmp word[jogador_anterior],'X'
+   452 000002C8 7418                        je color_x
+   453 000002CA C706[0000][0000]            mov word[cor], cyan_claro
+   454                                  
+   455                                  winner_draw:
+   456 000002D0 E8(0000)                    call	cursor
+   457 000002D3 A0[0000]                    mov     al,[jogador_anterior]
+   458 000002D6 E8(0000)                    call	caracter
+   459                                  
+   460 000002D9 5F                          pop		di
+   461 000002DA 5E                          pop		si
+   462 000002DB 5A                          pop		dx
+   463 000002DC 59                          pop		cx
+   464 000002DD 5B                          pop		bx
+   465 000002DE 58                          pop		ax
+   466 000002DF 9D                          popf
+   467 000002E0 5D                          pop		bp
+   468 000002E1 C3                          ret
+   469                                  
+   470                                  color_x:
+   471 000002E2 C706[0000][0000]            mov word[cor], magenta_claro
+   472 000002E8 E9E5FF                      jmp winner_draw
+   473                                  segment data
+   474                                  ; mensagem de vitória
+   475 00000000 5669746F7269612064-         msg_vitoria     db      'Vitoria do jogador '
+   476 00000009 6F206A6F6761646F72-
+   477 00000012 20                 
+   478                                      len_msg_vitoria equ     19
+   479                                  segment stack stack
+   480                                  stacktop

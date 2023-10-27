@@ -1,9 +1,11 @@
 global draw_table, draw_position
-global proximo_jogador
+global proximo_jogador, jogador_anterior, matriz_tabela
 global len_campo_input, altura_input
+global offset_tabela_x, offset_tabela_y, fim_tabela_x, fim_tabela_y, largura_x, altura_y
 extern circle, line, cursor, caracter
-extern invalid_player, double_play, invalid_position, clear_character, draw_previous_cmd, clear_cmd
+extern invalid_player, double_play, invalid_position, position_filled, clear_character, draw_previous_cmd, clear_cmd
 extern cor, cyan_claro, magenta_claro, branco_intenso, amarelo
+extern n_jogadas
 segment code
 ..start:
 
@@ -148,6 +150,18 @@ draw_position:
     cmp ax,1
     jb invalid_pos
 
+    mov ax,[bp+6] ; linha da tabela
+    dec ax
+    and ax,00FFh
+    mov bl,3
+    mul bl
+    xor bx,bx
+    mov bx,[bp+4] ; coluna da tabela
+    dec bx
+    add bx,ax
+    cmp byte[bx+matriz_tabela],' '
+    jne filled_position
+draw_position1:
     mov ax,[bp+8] ;caractere ASCII correspondente ao símbolo a ser desenhado
     cmp ax,[jogador_anterior]
     je double_play_jmp
@@ -181,17 +195,31 @@ double_play_jmp:
 invalid_pos:
     call invalid_position
     jmp draw_position_end
+
+filled_position:
+    call position_filled
+    jmp draw_position_end
 draw_circle:
     mov word[cor], cyan_claro
+    mov ax,[bp+6] ; linha da tabela
+    dec ax
+    and ax,00FFh
+    mov bl,3
+    mul bl
+    xor bx,bx
+    mov bx,[bp+4] ; coluna da tabela
+    dec bx
+    add bx,ax
+    mov byte[bx+matriz_tabela],'C'
 
-    mov ax,[bp+4] ;posicao c da tabela (0-2)
+    mov ax,[bp+4] ;posicao c da tabela (1-3)
     dec ax
     mov bl,largura_x
     mul bl
     add ax,offset_tabela_x+(largura_x/2)
     push ax
 
-    mov ax,[bp+6] ;posicao l da tabela (0-2)
+    mov ax,[bp+6] ;posicao l da tabela (1-3)
     dec ax
     mov bl,altura_y
     mul bl
@@ -211,19 +239,32 @@ draw_circle:
     mov ax,'X'
     mov word[proximo_jogador],ax
 
+    inc word[n_jogadas]
+
     jmp draw_position_end
 
 draw_ecks:
     mov word[cor], magenta_claro
+    mov ax,[bp+6] ; linha da tabela
+    dec ax
+    and ax,00FFh
+    mov bl,3
+    mul bl
+    xor bx,bx
+    mov bx,[bp+4] ; coluna da tabela
+    dec bx
+    add bx,ax
+    mov byte[bx+matriz_tabela],'X'
+
 ; desenhando a primeira "barra" do X
-    mov ax,[bp+4] ;posicao c da tabela (0-2)
+    mov ax,[bp+4] ;posicao c da tabela (1-3)
     dec ax
     mov bl,largura_x
     mul bl
     add ax,offset_tabela_x+offset_quadrado_x
     push ax ; posicao x1 da função line
 
-    mov ax,[bp+6] ;posicao l da tabela (0-2)
+    mov ax,[bp+6] ;posicao l da tabela (1-3)
     dec ax
     mov bl,altura_y
     mul bl
@@ -233,13 +274,13 @@ draw_ecks:
     sub bx,ax
     push bx ; posicao y1 da função line
 
-    mov ax,[bp+4] ;posicao c da tabela (0-2)
+    mov ax,[bp+4] ;posicao c da tabela (1-3)
     mov bl,largura_x
     mul bl
     add ax,offset_tabela_x-offset_quadrado_x
     push ax ; posicao x2 da função line
 
-    mov ax,[bp+6] ;posicao l da tabela (0-2)
+    mov ax,[bp+6] ;posicao l da tabela (1-3)
     mov bl,altura_y
     mul bl
     add ax,margem_y-offset_quadrado_y
@@ -251,14 +292,14 @@ draw_ecks:
     call line
 
 ; desenhando a segunda "barra" do X
-    mov ax,[bp+4] ;posicao c da tabela (0-2)
+    mov ax,[bp+4] ;posicao c da tabela (1-3)
     dec ax
     mov bl,largura_x
     mul bl
     add ax,offset_tabela_x+offset_quadrado_x
     push ax ; posicao x1 da função line
 
-    mov ax,[bp+6] ;posicao l da tabela (0-2)
+    mov ax,[bp+6] ;posicao l da tabela (1-3)
     mov bl,altura_y
     mul bl
     add ax,margem_y-offset_quadrado_y
@@ -267,13 +308,13 @@ draw_ecks:
     sub bx,ax
     push bx ; posicao y1 da função line
 
-    mov ax,[bp+4] ;posicao c da tabela (0-2)
+    mov ax,[bp+4] ;posicao c da tabela (1-3)
     mov bl,largura_x
     mul bl
     add ax,offset_tabela_x-offset_quadrado_x
     push ax ; posicao x2 da função line
 
-    mov ax,[bp+6] ;posicao l da tabela (0-2)
+    mov ax,[bp+6] ;posicao l da tabela (1-3)
     dec ax
     mov bl,altura_y
     mul bl
@@ -290,6 +331,8 @@ draw_ecks:
     mov ax,'C'
     mov word[proximo_jogador],ax
 
+    inc word[n_jogadas]
+
     jmp draw_position_end
 
 draw_position_end:
@@ -304,18 +347,21 @@ draw_position_end:
     ret 6
 
 segment data
-;coordenadas do inicio (canto inferior esquerdo) e do fim (canto superior direito) da tabela do jogo da velha
+; coordenadas do inicio (canto inferior esquerdo) e do fim (canto superior direito) da tabela do jogo da velha
     offset_tabela_x     equ     20
     offset_tabela_y     equ     120
-    margem_y            equ     30
     fim_tabela_x        equ     620
     fim_tabela_y        equ     450
+    margem_y            equ     30
 
 ; dimensoes e offsets de cada quadradinho do jogo da velha
     offset_quadrado_x   equ     10
     offset_quadrado_y   equ     10
     largura_x           equ     200
     altura_y            equ     110
+
+; matriz que representa o tabuleiro na memória
+    matriz_tabela       db      ' ',' ',' ',' ',' ',' ',' ',' ',' '
 
 ; vez do jogador anterior
     jogador_anterior    dw      ' '
