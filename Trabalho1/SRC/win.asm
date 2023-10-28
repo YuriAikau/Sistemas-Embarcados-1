@@ -424,6 +424,8 @@ draw_win8:
     popf
     ret
 
+; função responsável por escrever a mensagem de vitória
+; e o vencedor da partida
 match_win:
     pushf
     push 		ax
@@ -452,6 +454,7 @@ match_win1:
     je color_x
     mov word[cor], cyan_claro
 
+; escreve o caractere do ganhador após a mensagem de vitória
 winner_draw:
     call	cursor
     mov     al,[jogador_anterior]

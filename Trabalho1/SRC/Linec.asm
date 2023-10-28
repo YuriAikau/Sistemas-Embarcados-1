@@ -1,4 +1,4 @@
-; vers�o de 10/05/2007
+; versão de 10/05/2007
 ; corrigido erro de arredondamento na rotina line.
 ; circle e full_circle disponibilizados por Jefferson Moro em 10/2009
 ;
@@ -10,7 +10,7 @@ segment code
 ..start:
 ;***************************************************************************
 ;
-;   fun��o cursor
+;   função cursor
 ;
 ; dh = linha (0-29) e  dl=coluna  (0-79)
 cursor:
@@ -36,7 +36,7 @@ cursor:
 		ret
 ;_____________________________________________________________________________
 ;
-;   fun��o caracter escrito na posi��o do cursor
+;   função caracter escrito na posição do cursor
 ;
 ; al= caracter a ser escrito
 ; cor definida na variavel cor
@@ -65,7 +65,7 @@ caracter:
 		ret
 ;_____________________________________________________________________________
 ;
-;   fun��o plot_xy
+;   função plot_xy
 ;
 ; push x; push y; call plot_xy;  (x<639, y<479)
 ; cor definida na variavel cor
@@ -96,7 +96,7 @@ plot_xy:
 		pop		bp
 		ret		4
 ;_____________________________________________________________________________
-;    fun��o circle
+;    função circle
 ;	 push xc; push yc; push r; call circle;  (xc+r<639,yc+r<479)e(xc-r>0,yc-r>0)
 ; cor definida na variavel cor
 circle:
@@ -142,15 +142,15 @@ circle:
 	sub		di,1	 ;di=r-1
 	mov		dx,0  	;dx ser� a vari�vel x. cx � a variavel y
 	
-;aqui em cima a l�gica foi invertida, 1-r => r-1
-;e as compara��es passaram a ser jl => jg, assim garante 
+;aqui em cima a lógica foi invertida, 1-r => r-1
+;e as comparações passaram a ser jl => jg, assim garante 
 ;valores positivos para d
 
 stay:				;loop
 	mov		si,di
 	cmp		si,0
 	jg		inf       ;caso d for menor que 0, seleciona pixel superior (n�o  salta)
-	mov		si,dx		;o jl � importante porque trata-se de conta com sinal
+	mov		si,dx		;o jl é importante porque trata-se de conta com sinal
 	sal		si,1		;multiplica por doi (shift arithmetic left)
 	add		si,3
 	add		di,si     ;nesse ponto d=d+2*dx+3

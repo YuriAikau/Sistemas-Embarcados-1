@@ -90,7 +90,8 @@ red_x:
     mov word[cor], magenta_claro
     jmp next_player_draw
 
-; função responsável por escrever o erro na tela correspondente à posição na tabela se inválida
+; função responsável por escrever o erro na tela correspondente
+; à posição na tabela se inválida
 invalid_position:
     pushf
     push 		ax
@@ -125,6 +126,8 @@ err_invalid_position:
     pop		bp
     ret
 
+; função responsável por escrever o erro na tela correspondente
+; à posição da tabela já estar preenchida
 position_filled:
     pushf
     push 		ax
@@ -159,6 +162,8 @@ err_position_filled:
     pop		bp
     ret
 
+; função responsável por escrever a mensagem na tela caso
+; o jogo terminou em empate
 match_draw:
     pushf
     push 		ax

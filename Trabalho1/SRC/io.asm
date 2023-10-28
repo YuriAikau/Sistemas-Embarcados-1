@@ -44,6 +44,9 @@ end_game:
     mov word[fecha_jogo],1
     jmp read_input_end
 
+; função responsável por registar os comandos digitados na variável cmd
+; ou modificar o estado do comando (no caso o backspace apaga um caracter
+; e enter termina o comando).
 cmd_handler:
     pushf
     push 		ax
@@ -55,13 +58,11 @@ cmd_handler:
     push		bp
 
 read_cmd:
-    mov si,[prox_posicao]
+    mov si,[prox_posicao] ; avança a referência da posição no vetor cmd
 
     ; le caractere do teclado e armazena em AL
     mov ah,07h
     int 21h
-
-    ;mov word[cmd_end],1 ;temporario
 
     ; verifica se a tecla foi backspace
     cmp al,k_backspace
@@ -75,6 +76,7 @@ read_cmd:
     cmp word[prox_posicao],2
     ja read_cmd_end
 
+; escreve o caracter no vetor cmd
 save_char:
     mov [si+cmd],al
     inc word[prox_posicao]
@@ -99,10 +101,12 @@ backspace_handler:
     dec word[prox_posicao]
     jmp read_cmd_end
 
+; caso seja apertado enter o comando é finalizado
 enter_handler:
     mov word[cmd_end],1
     jmp read_cmd_end
 
+; escreve o comando atual na tela
 draw_current_cmd:
     pushf
     push 		ax
@@ -137,6 +141,7 @@ cmd_draw:
     popf
     ret
 
+; função responsável por escrever o comando anterior na tela
 draw_previous_cmd:
     pushf
     push 		ax
@@ -170,6 +175,7 @@ cmd_draw1:
     popf
     ret
 
+; função responsável por limpar o campo de comandos
 clear_cmd:
     pushf
     push 		ax

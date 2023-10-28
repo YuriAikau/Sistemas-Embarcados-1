@@ -18,19 +18,19 @@ segment code
     je main_end
 
 game_start:
-; salvar modo corrente de video(vendo como est� o modo de video da maquina)
+; salvar modo corrente de video(vendo como está o modo de video da maquina)
     mov  		ah,0Fh
     int  		10h
     mov  		[modo_anterior],al   
 
-; alterar modo de video para gr�fico 640x480 16 cores
+; alterar modo de video para gráfico 640x480 16 cores
     mov     	al,12h
     mov     	ah,0
     int     	10h
 
-    call draw_table
+    call draw_table ; desenha a tabela na tela
 
-    call game_loop
+    call game_loop ; loop principal do jogo
 
     mov  	ah,0   			; set video mode
     mov  	al,[modo_anterior]   	; modo anterior

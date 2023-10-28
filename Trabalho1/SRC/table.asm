@@ -9,6 +9,7 @@ extern n_jogadas
 segment code
 ..start:
 
+; função responsável por desenhar a tabela na tela (senhanhar '#')
 draw_table:
     pushf
     push 		ax
@@ -64,6 +65,35 @@ draw_table:
     push		ax
     call		line
 
+; escreve a posição das linhas
+    mov cx, 3 ; número de linhas
+    xor bx,bx
+    mov dh,5
+    mov dl,0
+    mov word[cor], branco_intenso
+line_number:
+    call	cursor
+    mov     al,[bx+n_linhas_colunas]
+    call	caracter
+    inc     bx			;proximo caracter
+    add		dh,	7		;proxima linha
+    loop    line_number
+
+; escreve a posição das linhas
+    mov cx, 3 ; número de colunas
+    xor bx,bx
+    mov dh,23
+    mov dl,13
+    mov word[cor], branco_intenso
+column_number:
+    call	cursor
+    mov     al,[bx+n_linhas_colunas]
+    call	caracter
+    inc     bx			;proximo caracter
+    add		dl,	26		;proxima linha
+    loop    column_number
+
+; desenhando o texto do campo de input
     mov cx, len_campo_input ; número de caracteres na mensagem "Campo de comando: "
     xor bx,bx
     mov dh,altura_input
@@ -84,6 +114,7 @@ draw_input:
     mov dl,2
     mov word[cor], branco_intenso
 
+; desenhando o texto do campo de comandos anteriores
 draw_cmd:
     call	cursor
     mov     al,[bx+campo_cmd]
@@ -98,6 +129,7 @@ draw_cmd:
     mov dl,2
     mov word[cor], branco_intenso
 
+; desenhando o texto do campo das mensagens de status
 draw_msg:
     call	cursor
     mov     al,[bx+campo_msg]
@@ -117,8 +149,8 @@ draw_msg:
     ret
 
 ;_____________________________________________________________________________
-;   funcao desenha_posicao
-;   push symbol; push x; push y; call draw_position; (0<=x<=2) e (0<=y<=2)
+;   funcao responsável por desenhar 'X' ou 'O' na posição adequada da tabela
+;   push symbol; push l; push c; call draw_position; (1<=l<=3) e (1<=c<=3)
 draw_position:
     push bp
     mov bp,sp
@@ -130,6 +162,7 @@ draw_position:
     push		si
     push		di
 
+; limpa o campo de mensagens de status antes de fazer qualquer coisa
     mov ax,len_campo_msg
     push ax
     mov ax,50
@@ -138,6 +171,7 @@ draw_position:
     push ax
     call clear_character
 
+; verificação dos limites da tabela
     mov ax,[bp+4] ;posicao c da tabela (1-3)
     cmp ax,3
     ja invalid_pos
@@ -150,6 +184,7 @@ draw_position:
     cmp ax,1
     jb invalid_pos
 
+; verificação se a posição em questão já não foi ocupada
     mov ax,[bp+6] ; linha da tabela
     dec ax
     and ax,00FFh
@@ -162,15 +197,18 @@ draw_position:
     cmp byte[bx+matriz_tabela],' '
     jne filled_position
 draw_position1:
+; verifica se um jogador está tentando jogar duas vezes seguidas
     mov ax,[bp+8] ;caractere ASCII correspondente ao símbolo a ser desenhado
     cmp ax,[jogador_anterior]
     je double_play_jmp
 
+; verifica qual símbolo deve ser desenhado
     cmp ax,'X'
     je draw_ecks1
     cmp ax,'C'
     je draw_circle1
 
+; caso a verificação anterior falhe, significa que o jogador é inválido
     call invalid_player
 
     jmp draw_position_end
@@ -199,6 +237,8 @@ invalid_pos:
 filled_position:
     call position_filled
     jmp draw_position_end
+
+; desenha o círculo na tabela
 draw_circle:
     mov word[cor], cyan_claro
     mov ax,[bp+6] ; linha da tabela
@@ -243,6 +283,7 @@ draw_circle:
 
     jmp draw_position_end
 
+; desenha o xis na tabela
 draw_ecks:
     mov word[cor], magenta_claro
     mov ax,[bp+6] ; linha da tabela
