@@ -27,7 +27,7 @@ Ex: X12, C22, C13, ...
 ```
     make update %file%
 ```
-## Para limpar os arquivos gerados para a compilação:
+## Para limpar os arquivos gerados pela compilação:
 ```
     make clear
 ```
