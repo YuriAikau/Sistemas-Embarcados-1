@@ -1,3 +1,7 @@
+; Yuri Aikau de Castro Reis Sanchez
+; Turma: 05.1N
+
+; última alteração: 28/10/2023
 extern draw_table, draw_position
 extern modo_anterior
 extern read_input, cmd_handler
