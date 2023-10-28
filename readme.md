@@ -1,7 +1,7 @@
 # Jogo da velha em assembly x86
-Esse repositório é dedicado à um jogo da velha feito na linguagem de programação assembly na arquitetura x86 usando o sistema operacional DOS.\\
-Para a compilação e linkagem dos arquivos iremos utilizar o NASM e o FREELINK respectivamente.\\
-É recomendado a utilização do emulador dosBOX, já que este que foi utilizado na realização do trabalho.\\
+Esse repositório é dedicado à um jogo da velha feito na linguagem de programação assembly na arquitetura x86 usando o sistema operacional DOS.\
+Para a compilação e linkagem dos arquivos iremos utilizar o NASM e o FREELINK respectivamente.\
+É recomendado a utilização do emulador dosBOX, já que este que foi utilizado na realização do trabalho.\
 
 # Como jogar
 Para jogar, basta abrir o dosBOX nessa pasta e compilar e executar de acordo com os passoas mais abaixo.\
