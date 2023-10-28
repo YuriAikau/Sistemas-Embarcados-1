@@ -4,9 +4,9 @@ Para a compilação e linkagem dos arquivos iremos utilizar o NASM e o FREELINK 
 É recomendado a utilização do emulador dosBOX, já que este que foi utilizado na realização do trabalho.
 
 # Como jogar
-Para jogar, basta abrir o dosBOX nessa pasta e compilar e executar de acordo com os passoas mais abaixo.\
-Para realizar uma jogada basta digitar o caractere respectivo ao seu player ('X' ao x e 'C' para o círculo) e uma posição de linha e de coluna (Entre 1 e 3).\
-Ex: X12, C22
+Para jogar, basta abrir o dosBOX nessa pasta e compilar e executar de acordo com os passos mais abaixo.\
+Para realizar uma jogada basta digitar o caractere respectivo ao seu player ('X' para o Xis e 'C' para o círculo) e uma posição de linha e de coluna (Entre 1 e 3).\
+Ex: X12, C22, C13, ...
 
 ## Para compilar e linkar o programa basta digitar:
 ```
